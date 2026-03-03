@@ -579,129 +579,151 @@
         });
     </script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script>
-        /**
-         * 1. TRANSICIONES Y ANTI-FLASH
-         */
-        document.addEventListener("DOMContentLoaded", function () {
-            const container = document.querySelector('.container');
-            if (container) {
-                // Eliminamos el delay excesivo para que el contenido aparezca en cuanto el DOM esté listo
-                requestAnimationFrame(() => {
-                    container.classList.add('transition-active');
-                });
-            }
 
-            document.addEventListener('click', function (e) {
-                const target = e.target.closest('a');
-                if (!target) return;
-                const href = target.getAttribute('href');
-                const isInternal = href && (href.startsWith('/') || href.includes(window.location.hostname)) && !href.includes('#') && target.target !== '_blank';
-
-                if (isInternal && container) {
-                    e.preventDefault();
-                    container.style.pointerEvents = 'none';
-                    container.classList.remove('transition-active');
-                    container.classList.add('fade-out');
-                    setTimeout(() => { window.location.href = target.href; }, 500); // Reducido a 500ms para mayor agilidad
-                }
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script>
+    /**
+     * 1. TRANSICIONES Y ANTI-FLASH
+     */
+    document.addEventListener("DOMContentLoaded", function () {
+        const container = document.querySelector('.container');
+        if (container) {
+            requestAnimationFrame(() => {
+                container.classList.add('transition-active');
             });
-        });
-
-        /**
-         * 2. REPRODUCTOR: PLAYLIST INFINITA Y AUTO-NEXT
-         */
-        const playlist = [
-            { name: "Holy Forever", artist: "C. Tomlin & M. San Marcos", url: "https://raw.githubusercontent.com/uxdanydesign/songs/main/Chris%20Tomlin%20-%20Holy%20Forever%20(Español)%20%26%20Miel%20San%20Marcos%20(1).mp3" },
-            { name: "Tumbas A Jadrines", artist: "B. Lake & E. Aguilar", url: "https://raw.githubusercontent.com/uxdanydesign/songs/main/Tumbas%20A%20Jardines%20(ft.%20Brandon%20Lake%20%26%20Edgar%20Aguilar)%20%20Maverick%20City%20Música.mp3" },
-            { name: "Que Ruja El Leon", artist: "Marco Barrientos", url: "https://raw.githubusercontent.com/uxdanydesign/songs/main/Marco%20Barrientos%20-%20Que%20Ruja%20El%20León%20ft.%20Enoc%20Parra%20(Video%20Oficial).mp3" }
-        ];
-
-        let currentSongIndex = parseInt(localStorage.getItem('music_index')) || 0;
-        let savedTime = parseFloat(localStorage.getItem('music_time')) || 0;
-        const audio = new Audio(playlist[currentSongIndex].url);
-        audio.currentTime = savedTime;
-        audio.preload = "auto";
-
-        const musicComponent = document.querySelector('.music-component');
-        const graphicContainer = document.querySelector('.music-graphic');
-
-        if (graphicContainer) {
-            graphicContainer.innerHTML = '<span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>';
         }
 
-        function updateVisuals() {
-            const active = !audio.paused;
-            if (musicComponent) musicComponent.classList.toggle('is-playing', active);
-            if (graphicContainer) graphicContainer.classList.toggle('is-playing', active);
-        }
+        document.addEventListener('click', function (e) {
+            const target = e.target.closest('a');
+            if (!target) return;
+            const href = target.getAttribute('href');
+            const isInternal = href && (href.startsWith('/') || href.includes(window.location.hostname)) && !href.includes('#') && target.target !== '_blank';
 
-        function updateMetadata(withFade = false) {
-            const songNameEl = document.querySelector('.song-name');
-            const artistNameEl = document.querySelector('.artist-name');
-            if (songNameEl) songNameEl.innerText = playlist[currentSongIndex].name;
-            if (artistNameEl) artistNameEl.innerText = playlist[currentSongIndex].artist;
-        }
-
-        // Función para cambiar de canción (Bucle Infinito)
-        function nextSong() {
-            currentSongIndex = (currentSongIndex + 1) % playlist.length;
-            playSelectedSong();
-        }
-
-        function prevSong() {
-            currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
-            playSelectedSong();
-        }
-
-        function playSelectedSong() {
-            audio.pause();
-            audio.src = playlist[currentSongIndex].url;
-            audio.load();
-            updateMetadata(true);
-            audio.play().then(() => updateVisuals()).catch(() => updateVisuals());
-        }
-
-        // Evento: Cuando termina la canción, salta a la siguiente automáticamente
-        audio.addEventListener('ended', () => {
-            nextSong();
-        });
-
-        // Controles
-        document.querySelector('.play-pause')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (!audio.paused) audio.pause(); else audio.play();
-            updateVisuals();
-        });
-        document.querySelector('.next-song')?.addEventListener('click', nextSong);
-        document.querySelector('.previous-song')?.addEventListener('click', prevSong);
-
-        audio.addEventListener('play', updateVisuals);
-        audio.addEventListener('pause', updateVisuals);
-
-        // Persistencia
-        setInterval(() => {
-            localStorage.setItem('music_time', audio.currentTime);
-            localStorage.setItem('music_index', currentSongIndex);
-            localStorage.setItem('music_playing', !audio.paused);
-        }, 500);
-
-        function syncAndResume() {
-            const wasPlaying = localStorage.getItem('music_playing') === 'true';
-            updateMetadata();
-            if (wasPlaying && audio.paused) {
-                audio.play().then(updateVisuals).catch(() => {
-                    const resume = () => { audio.play(); window.removeEventListener('click', resume); };
-                    window.addEventListener('click', resume);
-                });
+            if (isInternal && container) {
+                e.preventDefault();
+                container.style.pointerEvents = 'none';
+                container.classList.remove('transition-active');
+                container.classList.add('fade-out');
+                setTimeout(() => { window.location.href = target.href; }, 500);
             }
-            updateVisuals();
-        }
+        });
+    });
 
-        window.addEventListener('load', syncAndResume);
-        window.addEventListener('pageshow', (e) => { if (e.persisted) syncAndResume(); });
-    </script>
+    /**
+     * 2. REPRODUCTOR: PLAYLIST INFINITA Y AUTO-NEXT (OPTIMIZADO)
+     */
+    const playlist = [
+        { name: "Holy Forever", artist: "C. Tomlin & M. San Marcos", url: "https://raw.githubusercontent.com/uxdanydesign/songs/main/Chris%20Tomlin%20-%20Holy%20Forever%20(Español)%20%26%20Miel%20San%20Marcos%20(1).mp3" },
+        { name: "Tumbas A Jardines", artist: "B. Lake & E. Aguilar", url: "https://raw.githubusercontent.com/uxdanydesign/songs/main/Tumbas%20A%20Jardines%20(ft.%20Brandon%20Lake%20%26%20Edgar%20Aguilar)%20%20Maverick%20City%20Música.mp3" },
+        { name: "Que Ruja El Leon", artist: "Marco Barrientos", url: "https://raw.githubusercontent.com/uxdanydesign/songs/main/Marco%20Barrientos%20-%20Que%20Ruja%20El%20León%20ft.%20Enoc%20Parra%20(Video%20Oficial).mp3" }
+    ];
+
+    let currentSongIndex = parseInt(localStorage.getItem('music_index')) || 0;
+    let savedTime = parseFloat(localStorage.getItem('music_time')) || 0;
+
+    // Inicialización con Preload
+    const audio = new Audio();
+    audio.preload = "auto"; 
+    audio.src = playlist[currentSongIndex].url;
+    audio.currentTime = savedTime;
+
+    const musicComponent = document.querySelector('.music-component');
+    const graphicContainer = document.querySelector('.music-graphic');
+
+    if (graphicContainer) {
+        graphicContainer.innerHTML = '<span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>';
+    }
+
+    function updateVisuals() {
+        const active = !audio.paused;
+        if (musicComponent) musicComponent.classList.toggle('is-playing', active);
+        if (graphicContainer) graphicContainer.classList.toggle('is-playing', active);
+    }
+
+    function updateMetadata() {
+        const songNameEl = document.querySelector('.song-name');
+        const artistNameEl = document.querySelector('.artist-name');
+        if (songNameEl) songNameEl.innerText = playlist[currentSongIndex].name;
+        if (artistNameEl) artistNameEl.innerText = playlist[currentSongIndex].artist;
+    }
+
+    // MEJORA: playSelectedSong con carga forzada (load)
+    function playSelectedSong() {
+        audio.pause();
+        audio.src = playlist[currentSongIndex].url;
+        audio.load(); // Despierta la descarga del servidor inmediatamente
+        updateMetadata();
+        
+        audio.play()
+            .then(() => updateVisuals())
+            .catch(e => console.log("Carga en curso o interacción requerida"));
+    }
+
+    function nextSong() {
+        currentSongIndex = (currentSongIndex + 1) % playlist.length;
+        playSelectedSong();
+    }
+
+    function prevSong() {
+        currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
+        playSelectedSong();
+    }
+
+    audio.addEventListener('ended', nextSong);
+
+    // Controles con manejo de Promesas
+    document.querySelector('.play-pause')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (!audio.paused) {
+            audio.pause();
+        } else {
+            audio.play().then(updateVisuals).catch(() => updateVisuals());
+        }
+    });
+
+    document.querySelector('.next-song')?.addEventListener('click', nextSong);
+    document.querySelector('.previous-song')?.addEventListener('click', prevSong);
+
+    audio.addEventListener('play', updateVisuals);
+    audio.addEventListener('pause', updateVisuals);
+
+    // Persistencia balanceada
+    setInterval(() => {
+        if (!audio.paused) {
+            localStorage.setItem('music_time', audio.currentTime);
+            localStorage.setItem('music_playing', 'true');
+        } else {
+            localStorage.setItem('music_playing', 'false');
+        }
+        localStorage.setItem('music_index', currentSongIndex);
+    }, 800);
+
+    // MEJORA: Recuperación agresiva tras navegación
+    function syncAndResume() {
+        const wasPlaying = localStorage.getItem('music_playing') === 'true';
+        updateMetadata();
+        
+        if (wasPlaying && audio.paused) {
+            // Intentar play inmediatamente
+            audio.play().then(updateVisuals).catch(() => {
+                // Si falla por autoplay, sonar al primer clic en CUALQUIER LADO del sitio
+                const resume = () => { 
+                    if (audio.paused) audio.play().then(updateVisuals); 
+                    window.removeEventListener('click', resume); 
+                    window.removeEventListener('touchstart', resume);
+                };
+                window.addEventListener('click', resume);
+                window.addEventListener('touchstart', resume);
+            });
+        }
+        updateVisuals();
+    }
+
+    window.addEventListener('load', syncAndResume);
+    window.addEventListener('pageshow', (e) => { if (e.persisted) syncAndResume(); });
+</script>
+
+    
     <script src="https://unpkg.com/lenis@1.1.2/dist/lenis.min.js"></script>
     <script>
         // 1. Inicialización de Lenis
@@ -764,3 +786,4 @@
 </body>
 
 </html>
+
