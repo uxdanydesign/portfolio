@@ -1065,7 +1065,14 @@
                 }, "-=0.7");
             }
         });
+
+
+        document.addEventListener("DOMContentLoaded", function() {
+  const badge = document.querySelector('.w-webflow-badge');
+  if (badge) badge.remove();
+});
     </script>
 </body>
+
 
 </html>
