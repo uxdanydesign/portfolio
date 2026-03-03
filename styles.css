@@ -221,6 +221,12 @@ html.w-mod-touch * {
   background-attachment: scroll !important;
 }
 
+.w-webflow-badge {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
 .w-block {
   display: block;
 }
@@ -3191,3 +3197,4 @@ h4 {
     grid-area: span 2 / span 2 / span 2 / span 2;
   }
 }
+
