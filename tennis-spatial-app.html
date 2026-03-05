@@ -654,7 +654,8 @@
     </script>
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script>
     /**
      * 1. TRANSICIONES Y ANTI-FLASH
@@ -729,8 +730,27 @@
     function updateMetadata() {
         const songNameEl = document.querySelector('.song-name');
         const artistNameEl = document.querySelector('.artist-name');
-        if (songNameEl) songNameEl.innerText = playlist[currentSongIndex].name;
-        if (artistNameEl) artistNameEl.innerText = playlist[currentSongIndex].artist;
+        
+        if (songNameEl && artistNameEl) {
+            // Animación: El texto actual sube y desaparece
+            gsap.to([songNameEl, artistNameEl], {
+                y: -15,
+                opacity: 0,
+                duration: 0.3,
+                ease: "power2.in",
+                onComplete: () => {
+                    // Cambiamos los textos
+                    songNameEl.innerText = playlist[currentSongIndex].name;
+                    artistNameEl.innerText = playlist[currentSongIndex].artist;
+
+                    // Animación: El nuevo texto aparece desde abajo y sube a su posición
+                    gsap.fromTo([songNameEl, artistNameEl], 
+                        { y: 15, opacity: 0 }, 
+                        { y: 0, opacity: 1, duration: 0.4, ease: "power2.out" }
+                    );
+                }
+            });
+        }
     }
 
     // MEJORA: playSelectedSong con carga forzada (load)
@@ -787,12 +807,15 @@
     // MEJORA: Recuperación agresiva tras navegación
     function syncAndResume() {
         const wasPlaying = localStorage.getItem('music_playing') === 'true';
-        updateMetadata();
+        
+        // Para el primer renderizado, ponemos los textos sin animación para evitar saltos
+        const songNameEl = document.querySelector('.song-name');
+        const artistNameEl = document.querySelector('.artist-name');
+        if (songNameEl) songNameEl.innerText = playlist[currentSongIndex].name;
+        if (artistNameEl) artistNameEl.innerText = playlist[currentSongIndex].artist;
         
         if (wasPlaying && audio.paused) {
-            // Intentar play inmediatamente
             audio.play().then(updateVisuals).catch(() => {
-                // Si falla por autoplay, sonar al primer clic en CUALQUIER LADO del sitio
                 const resume = () => { 
                     if (audio.paused) audio.play().then(updateVisuals); 
                     window.removeEventListener('click', resume); 
@@ -875,6 +898,7 @@
 </body>
 
 </html>
+
 
 
 
