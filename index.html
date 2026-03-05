@@ -867,8 +867,27 @@
     function updateMetadata() {
         const songNameEl = document.querySelector('.song-name');
         const artistNameEl = document.querySelector('.artist-name');
-        if (songNameEl) songNameEl.innerText = playlist[currentSongIndex].name;
-        if (artistNameEl) artistNameEl.innerText = playlist[currentSongIndex].artist;
+        
+        if (songNameEl && artistNameEl) {
+            // Animación: El texto actual sube y desaparece
+            gsap.to([songNameEl, artistNameEl], {
+                y: -15,
+                opacity: 0,
+                duration: 0.3,
+                ease: "power2.in",
+                onComplete: () => {
+                    // Cambiamos los textos
+                    songNameEl.innerText = playlist[currentSongIndex].name;
+                    artistNameEl.innerText = playlist[currentSongIndex].artist;
+
+                    // Animación: El nuevo texto aparece desde abajo y sube a su posición
+                    gsap.fromTo([songNameEl, artistNameEl], 
+                        { y: 15, opacity: 0 }, 
+                        { y: 0, opacity: 1, duration: 0.4, stagger: 0.1, ease: "power2.out" }
+                    );
+                }
+            });
+        }
     }
 
     // MEJORA: playSelectedSong con carga forzada (load)
@@ -897,55 +916,7 @@
 
     // Controles con manejo de Promesas
     document.querySelector('.play-pause')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (!audio.paused) {
-            audio.pause();
-        } else {
-            audio.play().then(updateVisuals).catch(() => updateVisuals());
-        }
-    });
-
-    document.querySelector('.next-song')?.addEventListener('click', nextSong);
-    document.querySelector('.previous-song')?.addEventListener('click', prevSong);
-
-    audio.addEventListener('play', updateVisuals);
-    audio.addEventListener('pause', updateVisuals);
-
-    // Persistencia balanceada
-    setInterval(() => {
-        if (!audio.paused) {
-            localStorage.setItem('music_time', audio.currentTime);
-            localStorage.setItem('music_playing', 'true');
-        } else {
-            localStorage.setItem('music_playing', 'false');
-        }
-        localStorage.setItem('music_index', currentSongIndex);
-    }, 800);
-
-    // MEJORA: Recuperación agresiva tras navegación
-    function syncAndResume() {
-        const wasPlaying = localStorage.getItem('music_playing') === 'true';
-        updateMetadata();
-        
-        if (wasPlaying && audio.paused) {
-            // Intentar play inmediatamente
-            audio.play().then(updateVisuals).catch(() => {
-                // Si falla por autoplay, sonar al primer clic en CUALQUIER LADO del sitio
-                const resume = () => { 
-                    if (audio.paused) audio.play().then(updateVisuals); 
-                    window.removeEventListener('click', resume); 
-                    window.removeEventListener('touchstart', resume);
-                };
-                window.addEventListener('click', resume);
-                window.addEventListener('touchstart', resume);
-            });
-        }
-        updateVisuals();
-    }
-
-    window.addEventListener('load', syncAndResume);
-    window.addEventListener('pageshow', (e) => { if (e.persisted) syncAndResume(); });
-</script>
+        e.
 
 
     
@@ -1141,6 +1112,7 @@ observer.observe(document.body, {
 
 
 </html>
+
 
 
 
