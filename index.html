@@ -916,7 +916,58 @@
 
     // Controles con manejo de Promesas
     document.querySelector('.play-pause')?.addEventListener('click', (e) => {
-        e.
+        e.preventDefault();
+        if (!audio.paused) {
+            audio.pause();
+        } else {
+            audio.play().then(updateVisuals).catch(() => updateVisuals());
+        }
+    });
+
+    document.querySelector('.next-song')?.addEventListener('click', nextSong);
+    document.querySelector('.previous-song')?.addEventListener('click', prevSong);
+
+    audio.addEventListener('play', updateVisuals);
+    audio.addEventListener('pause', updateVisuals);
+
+    // Persistencia balanceada
+    setInterval(() => {
+        if (!audio.paused) {
+            localStorage.setItem('music_time', audio.currentTime);
+            localStorage.setItem('music_playing', 'true');
+        } else {
+            localStorage.setItem('music_playing', 'false');
+        }
+        localStorage.setItem('music_index', currentSongIndex);
+    }, 800);
+
+    // MEJORA: Recuperación agresiva tras navegación
+    function syncAndResume() {
+        const wasPlaying = localStorage.getItem('music_playing') === 'true';
+        
+        // Para el primer renderizado, ponemos los textos sin animación para evitar saltos
+        const songNameEl = document.querySelector('.song-name');
+        const artistNameEl = document.querySelector('.artist-name');
+        if (songNameEl) songNameEl.innerText = playlist[currentSongIndex].name;
+        if (artistNameEl) artistNameEl.innerText = playlist[currentSongIndex].artist;
+        
+        if (wasPlaying && audio.paused) {
+            audio.play().then(updateVisuals).catch(() => {
+                const resume = () => { 
+                    if (audio.paused) audio.play().then(updateVisuals); 
+                    window.removeEventListener('click', resume); 
+                    window.removeEventListener('touchstart', resume);
+                };
+                window.addEventListener('click', resume);
+                window.addEventListener('touchstart', resume);
+            });
+        }
+        updateVisuals();
+    }
+
+    window.addEventListener('load', syncAndResume);
+    window.addEventListener('pageshow', (e) => { if (e.persisted) syncAndResume(); });
+</script>
 
 
     
@@ -1112,6 +1163,7 @@ observer.observe(document.body, {
 
 
 </html>
+
 
 
 
