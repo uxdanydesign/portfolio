@@ -491,11 +491,12 @@
 
 <script>
     /**
-     * 1. CONFIGURACIÓN GLOBAL Y TÍTULO
+     * 1. CONFIGURACIÓN GLOBAL Y ANTI-FLICKER
      */
     (function () {
         if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-        window.scrollTo(0, 0);
+        // Solo scrolleamos al inicio si no hay un hash (#) en la URL
+        if (!window.location.hash) window.scrollTo(0, 0);
     })();
 
     const originalTitle = document.title;
@@ -504,27 +505,31 @@
     });
 
     /**
-     * 2. TRANSICIONES DE PÁGINA (FADE IN/OUT)
-     * Optimizada para no tocar anclas (#) ni componentes de navegación
+     * 2. TRANSICIONES Y NAVEGACIÓN (OPTIMIZADO)
      */
     document.addEventListener("DOMContentLoaded", function () {
         const container = document.querySelector('.container');
+
+        // Entrada (Fade In)
         if (container) {
             requestAnimationFrame(() => {
-                setTimeout(() => { container.classList.add('transition-active'); }, 200);
+                setTimeout(() => { container.classList.add('transition-active'); }, 150);
             });
         }
 
+        // Salida (Fade Out) - Solo para links internos reales (sin #)
         document.addEventListener('click', function (e) {
             const target = e.target.closest('a');
             if (!target) return;
 
             const href = target.getAttribute('href');
             
-            // Si es un ancla (como #home) o no tiene href, NO activamos la transición de salida
-            if (!href || href.includes('#') || target.target === '_blank') return;
+            // Si es un ancla (#), el botón del menú o abre en pestaña nueva, ignoramos
+            if (!href || href.includes('#') || target.target === '_blank' || target.classList.contains('btn-symbol')) {
+                return;
+            }
 
-            const isInternal = (href.startsWith('/') || href.includes(window.location.hostname));
+            const isInternal = href.startsWith('/') || href.includes(window.location.hostname);
 
             if (isInternal && container) {
                 e.preventDefault();
@@ -536,8 +541,17 @@
         });
     });
 
+    // Fix para botones del navegador
+    window.addEventListener('pageshow', (e) => {
+        const container = document.querySelector('.container');
+        if (e.persisted && container) {
+            container.classList.replace('fade-out', 'transition-active');
+            container.style.pointerEvents = 'auto';
+        }
+    });
+
     /**
-     * 3. REPRODUCTOR DE MÚSICA (LÓGICA Danny)
+     * 3. REPRODUCTOR DE MÚSICA (PERSISTENTE)
      */
     const playlist = [
         { name: "I Think I Like It", artist: "Fake Blood", url: "https://res.cloudinary.com/dixoqghwt/video/upload/f_auto,q_auto/v1772742577/Fake_Blood_-_I_Think_I_Like_It_We_Are_Your_Friends_Soundtrack_ma87ba.mp3" },
@@ -550,30 +564,65 @@
 
     let currentSongIndex = parseInt(localStorage.getItem('music_index')) || 0;
     const audio = new Audio();
+    audio.preload = "auto";
     audio.src = playlist[currentSongIndex].url;
     audio.currentTime = parseFloat(localStorage.getItem('music_time')) || 0;
 
-    function updateVisuals() {
+    const musicComp = document.querySelector('.music-component');
+    const graphic = document.querySelector('.music-graphic');
+    if (graphic) graphic.innerHTML = '<span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>';
+
+    function updateUI() {
         const active = !audio.paused;
-        document.querySelector('.music-component')?.classList.toggle('is-playing', active);
-        document.querySelector('.music-graphic')?.classList.toggle('is-playing', active);
+        musicComp?.classList.toggle('is-playing', active);
+        graphic?.classList.toggle('is-playing', active);
     }
 
-    function playSelectedSong() {
+    function playSong() {
         audio.pause();
         audio.src = playlist[currentSongIndex].url;
         audio.load();
-        audio.play().then(updateVisuals).catch(() => {});
+        
+        const sName = document.querySelector('.song-name'), aName = document.querySelector('.artist-name');
+        if (sName && aName) {
+            gsap.to([sName, aName], { y: -10, opacity: 0, duration: 0.2, onComplete: () => {
+                sName.innerText = playlist[currentSongIndex].name;
+                aName.innerText = playlist[currentSongIndex].artist;
+                gsap.to([sName, aName], { y: 0, opacity: 1, duration: 0.3 });
+            }});
+        }
+        audio.play().then(updateUI).catch(() => {});
     }
 
     document.querySelector('.play-pause')?.addEventListener('click', (e) => {
         e.preventDefault();
-        audio.paused ? audio.play().then(updateVisuals) : audio.pause();
-        updateVisuals();
+        audio.paused ? audio.play().then(updateUI) : audio.pause();
+        updateUI();
+    });
+    document.querySelector('.next-song')?.addEventListener('click', () => { currentSongIndex = (currentSongIndex + 1) % playlist.length; playSong(); });
+    document.querySelector('.previous-song')?.addEventListener('click', () => { currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length; playSong(); });
+
+    audio.addEventListener('ended', () => { currentSongIndex = (currentSongIndex + 1) % playlist.length; playSong(); });
+    
+    setInterval(() => {
+        localStorage.setItem('music_time', audio.currentTime);
+        localStorage.setItem('music_index', currentSongIndex);
+        localStorage.setItem('music_playing', !audio.paused);
+    }, 1000);
+
+    window.addEventListener('load', () => {
+        const sName = document.querySelector('.song-name'), aName = document.querySelector('.artist-name');
+        if (sName) sName.innerText = playlist[currentSongIndex].name;
+        if (aName) aName.innerText = playlist[currentSongIndex].artist;
+        if (localStorage.getItem('music_playing') === 'true' && audio.paused) {
+            const unlock = () => { audio.play().then(updateUI); window.removeEventListener('click', unlock); };
+            window.addEventListener('click', unlock);
+        }
+        updateUI();
     });
 
     /**
-     * 4. LENIS + FIX SMOOTH SCROLL #HOME
+     * 4. LENIS SCROLL
      */
     const lenis = new Lenis({
         duration: 1.2,
@@ -581,28 +630,10 @@
         smoothWheel: true
     });
 
-    function raf(time) {
-        lenis.raf(time);
-        requestAnimationFrame(raf);
-    }
+    function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
     requestAnimationFrame(raf);
 
-    // FIX ESPECÍFICO PARA #HOME
-    document.addEventListener('click', (e) => {
-        const anchor = e.target.closest('a[href*="#home"]');
-        if (anchor) {
-            e.preventDefault();
-            // Desplazamiento ultra suave hacia el elemento con ID home
-            lenis.scrollTo('#home', {
-                duration: 2,
-                easing: (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
-            });
-        }
-    });
-
-    /**
-     * 5. CONTROL DEL MENÚ (REPETIMOS TU LÓGICA ORIGINAL)
-     */
+    // Control del Menú (Tu lógica original intacta)
     const menuBtn = document.querySelector('.btn-symbol');
     let isMenuOpen = false;
 
@@ -620,19 +651,31 @@
     }
 
     window.addEventListener('load', () => lenis.resize());
+
+    /**
+     * 5. CURSOR (DESKTOP)
+     */
+    if (window.innerWidth > 991) {
+        const cursor = document.querySelector('.custom-cursor');
+        if (cursor) {
+            let mX = 0, mY = 0, cX = 0, cY = 0;
+            window.addEventListener('mousemove', (e) => { mX = e.clientX; mY = e.clientY; });
+            function anim() {
+                cX += (mX - cX) * 0.15; cY += (mY - cY) * 0.15;
+                cursor.style.transform = `translate3d(${cX + 20}px, ${cY + 20}px, 0)`;
+                requestAnimationFrame(anim);
+            }
+            anim();
+            document.addEventListener('mouseover', (e) => { if (e.target.closest('[data-cursor]')) cursor.classList.add('is-visible'); });
+            document.addEventListener('mouseout', (e) => { if (e.target.closest('[data-cursor]')) cursor.classList.remove('is-visible'); });
+        }
+    }
 </script>
 
 <style>
-    /* CSS para asegurar que Lenis y el Menú convivan */
     html { height: auto !important; }
-    body.no-scroll {
-        overflow: hidden !important;
-        height: 100vh !important;
-    }
-    /* Estilo del cursor solo para desktop */
-    @media (min-width: 992px) {
-        .custom-cursor { pointer-events: none; position: fixed; }
-    }
+    body.no-scroll { overflow: hidden !important; height: 100vh !important; }
+    .custom-cursor { pointer-events: none; position: fixed; z-index: 99999; }
 </style>
     
 </body>
