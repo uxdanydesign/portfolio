@@ -534,32 +534,40 @@
                 });
             }
 
-            // --- SALIDA (FADE OUT) ---
-            document.addEventListener('click', function (e) {
-                const target = e.target.closest('a');
-                if (!target) return;
+            // --- SALIDA (FADE OUT) OPTIMIZADA ---
+document.addEventListener('click', function (e) {
+    const target = e.target.closest('a');
+    if (!target) return;
 
-                const href = target.getAttribute('href');
-                const isInternal = href &&
-                    (href.startsWith('/') || href.includes(window.location.hostname)) &&
-                    !href.includes('#') &&
-                    target.target !== '_blank';
+    const href = target.getAttribute('href');
+    const currentUrl = window.location.pathname;
 
-                if (isInternal && container) {
-                    e.preventDefault();
-                    const destination = target.href;
+    // 1. Evitamos que links vacíos o con # disparen la transición
+    if (!href || href.includes('#') || target.target === '_blank') return;
 
-                    // Bloqueamos interacciones para evitar saltos visuales durante la salida
-                    container.style.pointerEvents = 'none';
-                    container.classList.remove('transition-active');
-                    container.classList.add('fade-out');
+    // 2. Definimos si es un link interno
+    const isInternal = href.startsWith('/') || href.includes(window.location.hostname);
 
-                    setTimeout(() => {
-                        window.location.href = destination;
-                    }, 700);
-                }
-            });
-        });
+    if (isInternal && container) {
+        // 3. ¡SOLUCIÓN CRÍTICA!: Si el link es a la misma página, no hacemos nada o solo cerramos el menú
+        if (href === currentUrl || href === window.location.href) {
+            // Si el menú está abierto (responsive), solo lo cerramos, no recargamos
+            if (isMenuOpen) menuBtn.click(); 
+            return; 
+        }
+
+        e.preventDefault();
+        const destination = target.href;
+
+        container.style.pointerEvents = 'none';
+        container.classList.remove('transition-active');
+        container.classList.add('fade-out');
+
+        setTimeout(() => {
+            window.location.href = destination;
+        }, 700);
+    }
+});
 
         // FIX BOTONES NAVEGADOR (PAGESHOW)
         window.addEventListener('pageshow', function (event) {
