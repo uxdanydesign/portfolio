@@ -672,11 +672,6 @@
         }
     })();
 
-    const originalTitle = document.title;
-    document.addEventListener("visibilitychange", () => {
-        document.title = document.hidden ? "Come back Bob :(" : originalTitle;
-    });
-
     /**
      * 2. TRANSICIONES (FADE IN/OUT)
      */
