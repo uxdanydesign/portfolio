@@ -495,7 +495,6 @@
      */
     (function () {
         if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-        // Solo resetear al cargar si no hay un hash en la URL
         if (!window.location.hash) {
             window.scrollTo(0, 0);
         }
@@ -507,7 +506,7 @@
     });
 
     /**
-     * 2. TRANSICIONES (FADE IN/OUT) - FIX PARA ANCLAS
+     * 2. TRANSICIONES (FADE IN/OUT)
      */
     document.addEventListener("DOMContentLoaded", function () {
         const container = document.querySelector('.container');
@@ -525,7 +524,7 @@
 
             const href = target.getAttribute('href');
             
-            // --- AJUSTE CRÍTICO: Si es ancla, salir de la función de transición ---
+            // Si el link es un ancla o el reproductor, no hacemos fade-out
             if (!href || href.startsWith('#') || href.includes('#')) return;
 
             const isInternal = (href.startsWith('/') || href.includes(window.location.hostname)) && target.target !== '_blank';
@@ -541,7 +540,7 @@
     });
 
     /**
-     * 3. REPRODUCTOR (TU LÓGICA ORIGINAL)
+     * 3. REPRODUCTOR (RESTAURADO)
      */
     const playlist = [
         { name: "I Think I Like It", artist: "Fake Blood", url: "https://res.cloudinary.com/dixoqghwt/video/upload/f_auto,q_auto/v1772742577/Fake_Blood_-_I_Think_I_Like_It_We_Are_Your_Friends_Soundtrack_ma87ba.mp3" },
@@ -586,11 +585,15 @@
     }
 
     document.querySelector('.play-pause')?.addEventListener('click', (e) => {
-        e.preventDefault(); audio.paused ? audio.play().then(updateVisuals) : audio.pause();
+        e.preventDefault(); 
+        audio.paused ? audio.play().then(updateVisuals) : audio.pause();
+        updateVisuals(); // Forzar actualización visual inmediata
     });
-    document.querySelector('.next-song')?.addEventListener('click', () => { currentSongIndex = (currentSongIndex + 1) % playlist.length; playSelectedSong(); });
-    document.querySelector('.previous-song')?.addEventListener('click', () => { currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length; playSelectedSong(); });
+    document.querySelector('.next-song')?.addEventListener('click', (e) => { e.preventDefault(); currentSongIndex = (currentSongIndex + 1) % playlist.length; playSelectedSong(); });
+    document.querySelector('.previous-song')?.addEventListener('click', (e) => { e.preventDefault(); currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length; playSelectedSong(); });
     
+    audio.addEventListener('play', updateVisuals);
+    audio.addEventListener('pause', updateVisuals);
     audio.addEventListener('ended', () => { currentSongIndex = (currentSongIndex + 1) % playlist.length; playSelectedSong(); });
     
     setInterval(() => {
@@ -638,24 +641,28 @@
     });
 
     /**
-     * 5. LENIS (AJUSTADO: Lento-Rápido-Lento)
+     * 5. LENIS (RESTAURADO SCROLL GENERAL)
      */
     const lenis = new Lenis({
-        duration: 1.5, // Un poco más largo para apreciar la curva
-        easing: (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2, // Curva Custom: Inicia lento, acelera, termina lento
+        duration: 1.2,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Easing original
         smoothWheel: true
     });
 
     function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
     requestAnimationFrame(raf);
 
-    // Ajuste para que los links internos con # funcionen con Lenis
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    // SMOTH SCROLL EXCLUSIVO PARA #HOME
+    document.querySelectorAll('a[href="#home"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
-            const targetId = this.getAttribute('href');
-            const target = document.querySelector(targetId);
-            if (target) lenis.scrollTo(target);
+            const target = document.querySelector('#home');
+            if (target) {
+                lenis.scrollTo(target, {
+                    duration: 1.8,
+                    easing: (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2 // La curva premium solo aquí
+                });
+            }
         });
     });
 
