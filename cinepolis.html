@@ -484,793 +484,194 @@
         </div>
     </section>
 
-    <script src="https://d3e54v103j8qbb.cloudfront.net/js/jquery-3.5.1.min.dc5e7f18c8.js?site=6993f9e4682d716bb49ed0ed"
-        type="text/javascript" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
-        crossorigin="anonymous"></script>
-
-    <script src="script.js"
-        type="text/javascript" integrity="sha384-ar82P9eriV3WGOD8Lkag3kPxxkFE9GSaSPalaC0MRlR/5aACGoFQNfyqt0dNuYvt"
-        crossorigin="anonymous"></script>
-
-    <script src="https://cdn.prod.website-files.com/6993f9e4682d716bb49ed0ed/js/webflow.schunk.ff560088e0bd9e74.js"
-        type="text/javascript" integrity="sha384-cEbwBly6SQ1GQaV7P9BWHyDPCeUI5dhXU22CKlbvPwO8zIPPi/av+CbzZqwavg/K"
-        crossorigin="anonymous"></script>
-
-    <script src="https://cdn.prod.website-files.com/6993f9e4682d716bb49ed0ed/js/webflow.dbb96281.04d4ea6cd320003e.js"
-        type="text/javascript" integrity="sha384-gzBIwhMsCFAcyCV+0j5yBegAMTd/Of/7U3CjRIcJ/ko2p5n+E5a2t9re+oxF3Bh2"
-        crossorigin="anonymous"></script>
-
-    <script>
-
-        /**
-
-         * 1. GLOBAL SCROLL RESET & PERFORMANCE FIXES
-
-         */
-
-        (function () {
-
-            if ('scrollRestoration' in history) {
-
-                history.scrollRestoration = 'manual';
-
-            }
-
-            window.scrollTo(0, 0);
-
-            window.addEventListener('load', () => window.scrollTo(0, 0));
-
-        })();
-
-
-
-        /**
-
-         * 2. TÍTULO DINÁMICO (VISIBILITY CHANGE)
-
-         */
-
-        const originalTitle = document.title;
-
-        document.addEventListener("visibilitychange", () => {
-
-            document.title = document.hidden ? "Come back Bob :(" : originalTitle;
-
-        });
-
-
-
-        /**
-
-         * 3. LÓGICA DE TRANSICIÓN DE PÁGINA (FADE IN/OUT) - ANTI-FLICKER
-
-         */
-
-        document.addEventListener("DOMContentLoaded", function () {
-
-            const container = document.querySelector('.container');
-
-
-
-            // --- ENTRADA (FADE IN) ---
-
-            if (container) {
-
-                // Si la página viene de caché (flechas), entramos más rápido para evitar parpadeo
-
-                const entryDelay = (window.performance && window.performance.navigation.type === 2) ? 50 : 200;
-
-
-
-                requestAnimationFrame(() => {
-
-                    setTimeout(() => {
-
-                        container.classList.add('transition-active');
-
-                    }, entryDelay);
-
-                });
-
-            }
-
-
-
-            // --- SALIDA (FADE OUT) ---
-
-            document.addEventListener('click', function (e) {
-
-                const target = e.target.closest('a');
-
-                if (!target) return;
-
-
-
-                const href = target.getAttribute('href');
-
-                const isInternal = href &&
-
-                    (href.startsWith('/') || href.includes(window.location.hostname)) &&
-
-                    !href.includes('#') &&
-
-                    target.target !== '_blank';
-
-
-
-                if (isInternal && container) {
-
-                    e.preventDefault();
-
-                    const destination = target.href;
-
-
-
-                    // Bloqueamos interacciones para evitar saltos visuales durante la salida
-
-                    container.style.pointerEvents = 'none';
-
-                    container.classList.remove('transition-active');
-
-                    container.classList.add('fade-out');
-
-
-
-                    setTimeout(() => {
-
-                        window.location.href = destination;
-
-                    }, 700);
-
-                }
-
-            });
-
-        });
-
-
-
-        // FIX BOTONES NAVEGADOR (PAGESHOW)
-
-        window.addEventListener('pageshow', function (event) {
-
-            const container = document.querySelector('.container');
-
-            if (event.persisted && container) {
-
-                container.classList.remove('fade-out');
-
-                container.classList.add('transition-active');
-
-                container.style.pointerEvents = 'auto';
-
-            }
-
-        });
-
-
-
-        /**
-
-         * 4. CUSTOM CURSOR (DESKTOP ONLY)
-
-         */
-
-        document.addEventListener("DOMContentLoaded", function () {
-
-            if (window.innerWidth <= 991) return;
-
-
-
-            const cursor = document.querySelector('.custom-cursor');
-
-            const cursorText = document.querySelector('.cursor-text');
-
-            if (!cursor) return;
-
-
-
-            let mouseX = 0, mouseY = 0, cursorX = 0, cursorY = 0;
-
-            let isHovering = false;
-
-
-
-            window.addEventListener('mousemove', (e) => {
-
-                mouseX = e.clientX;
-
-                mouseY = e.clientY;
-
-            });
-
-
-
-            function animate() {
-
-                cursorX += (mouseX - cursorX) * 0.1;
-
-                cursorY += (mouseY - cursorY) * 0.1;
-
-
-
-                const cursorRect = cursor.getBoundingClientRect();
-
-                const offsetValue = 20;
-
-                let xOffset = offsetValue;
-
-                let yOffset = offsetValue;
-
-
-
-                if (cursorX + cursorRect.width + offsetValue > window.innerWidth) {
-
-                    xOffset = -(cursorRect.width + offsetValue);
-
-                }
-
-
-
-                const scale = isHovering ? 1 : 0.8;
-
-                cursor.style.transform = `translate3d(${cursorX + xOffset}px, ${cursorY + yOffset}px, 0) scale(${scale})`;
-
-                requestAnimationFrame(animate);
-
-            }
-
-            animate();
-
-
-
-            document.addEventListener('mouseover', (e) => {
-
-                const link = e.target.closest('[data-cursor]');
-
-                if (link) {
-
-                    isHovering = true;
-
-                    if (cursorText) cursorText.textContent = link.getAttribute('data-cursor');
-
-                    cursor.classList.add('is-visible');
-
-                }
-
-            });
-
-
-
-            const hideCursor = (e) => {
-
-                if (e.target.closest('[data-cursor]')) {
-
-                    isHovering = false;
-
-                    cursor.classList.remove('is-visible');
-
-                }
-
-            };
-
-            document.addEventListener('mouseout', hideCursor);
-
-            document.addEventListener('click', hideCursor);
-
-        });
-
-    </script>
-
-
-
-
-
-
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://d3e54v103j8qbb.cloudfront.net/js/jquery-3.5.1.min.dc5e7f18c8.js?site=6993f9e4682d716bb49ed0ed" type="text/javascript" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.2/dist/lenis.min.js"></script>
 
 <script>
+    /**
+     * 1. RESET & TÍTULO
+     */
+    (function () {
+        if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+        window.scrollTo(0, 0);
+    })();
+
+    const originalTitle = document.title;
+    document.addEventListener("visibilitychange", () => {
+        document.title = document.hidden ? "Come back Bob :(" : originalTitle;
+    });
 
     /**
-
-     * 1. TRANSICIONES Y ANTI-FLASH
-
+     * 2. TRANSICIONES Y CURSOR (UNIFICADO)
      */
-
     document.addEventListener("DOMContentLoaded", function () {
-
         const container = document.querySelector('.container');
-
+        
+        // Fade In
         if (container) {
-
             requestAnimationFrame(() => {
-
-                container.classList.add('transition-active');
-
+                setTimeout(() => { container.classList.add('transition-active'); }, 200);
             });
-
         }
 
-
-
+        // Fade Out (Optimizado)
         document.addEventListener('click', function (e) {
-
             const target = e.target.closest('a');
-
             if (!target) return;
 
             const href = target.getAttribute('href');
-
-            const isInternal = href && (href.startsWith('/') || href.includes(window.location.hostname)) && !href.includes('#') && target.target !== '_blank';
-
-
+            
+            // Solo activamos Fade Out si es un link interno real y NO es un botón de música/menú
+            const isInternal = href && (href.startsWith('/') || href.includes(window.location.hostname)) && 
+                               !href.includes('#') && target.target !== '_blank';
 
             if (isInternal && container) {
-
                 e.preventDefault();
-
                 container.style.pointerEvents = 'none';
-
                 container.classList.remove('transition-active');
-
                 container.classList.add('fade-out');
-
-                setTimeout(() => { window.location.href = target.href; }, 500);
-
+                setTimeout(() => { window.location.href = target.href; }, 600);
             }
-
         });
 
+        // Cursor (Solo Desktop)
+        if (window.innerWidth > 991) {
+            const cursor = document.querySelector('.custom-cursor');
+            const cursorText = document.querySelector('.cursor-text');
+            if (cursor) {
+                let mX = 0, mY = 0, cX = 0, cY = 0, isHover = false;
+                window.addEventListener('mousemove', (e) => { mX = e.clientX; mY = e.clientY; });
+                
+                function anim() {
+                    cX += (mX - cX) * 0.1; cY += (mY - cY) * 0.1;
+                    const scale = isHover ? 1 : 0.8;
+                    cursor.style.transform = `translate3d(${cX + 20}px, ${cY + 20}px, 0) scale(${scale})`;
+                    requestAnimationFrame(anim);
+                }
+                anim();
+
+                document.addEventListener('mouseover', (e) => {
+                    const el = e.target.closest('[data-cursor]');
+                    if (el) {
+                        isHover = true;
+                        if (cursorText) cursorText.textContent = el.getAttribute('data-cursor');
+                        cursor.classList.add('is-visible');
+                    }
+                });
+                document.addEventListener('mouseout', (e) => {
+                    if (e.target.closest('[data-cursor]')) {
+                        isHover = false;
+                        cursor.classList.remove('is-visible');
+                    }
+                });
+            }
+        }
     });
-
-
 
     /**
-
-     * 2. REPRODUCTOR: PLAYLIST INFINITA Y AUTO-NEXT (OPTIMIZADO)
-
+     * 3. REPRODUCTOR DE MÚSICA
      */
-
     const playlist = [
-
-        { 
-
-            name: "I Think I Like It", 
-
-            artist: "Fake Blood", 
-
-            url: "https://res.cloudinary.com/dixoqghwt/video/upload/f_auto,q_auto/v1772742577/Fake_Blood_-_I_Think_I_Like_It_We_Are_Your_Friends_Soundtrack_ma87ba.mp3" 
-
-        },
-
-        { 
-
-            name: "Desire (Remix)", 
-
-            artist: "Years & Years - Gryffin", 
-
-            url: "https://res.cloudinary.com/dixoqghwt/video/upload/f_auto,q_auto/v1772743718/Years_Years_-_Desire_Gryffin_Remix_bu1c5i.mp3" 
-
-        },
-
-        { 
-
-            name: "Ça Plane Pour Moi", 
-
-            artist: "Plastic Bertrand", 
-
-            url: "https://res.cloudinary.com/dixoqghwt/video/upload/f_auto,q_auto/v1773167778/Plastic_Bertrand_-_%C3%87a_Plane_Pour_Moi_Sub_Espa%C3%B1ol_t1nnbt.mp3" 
-
-        },
-
-        { 
-
-            name: "Heads Will Roll (Remix)", 
-
-            artist: "Yeah Yeah Yeahs - A-Trak", 
-
-            url: "https://res.cloudinary.com/dixoqghwt/video/upload/f_auto,q_auto/v1773168038/Project_X_Movie_Music_Heads_Will_Roll_A-Trak_Remix_-_Yeah_Yeah_Yeahs_sw61j0.mp3" 
-
-        },
-
-        { 
-
-            name: "Sleepwalking", 
-
-            artist: "Chain Gang of 1974", 
-
-            url: "https://res.cloudinary.com/dixoqghwt/video/upload/f_auto,q_auto/v1773341468/Chain_Gang_of_1974_-_Sleepwalking_OFFICIAL_HQ_STREAM_vwmsew.mp3" 
-
-        },
-
-        { 
-
-            name: "The Set Up", 
-
-            artist: "Favored Nations", 
-
-            url: "https://res.cloudinary.com/dixoqghwt/video/upload/f_auto,q_auto/v1773341468/The_Set_Up_vwktta.mp3" 
-
-        }
-
+        { name: "I Think I Like It", artist: "Fake Blood", url: "https://res.cloudinary.com/dixoqghwt/video/upload/f_auto,q_auto/v1772742577/Fake_Blood_-_I_Think_I_Like_It_We_Are_Your_Friends_Soundtrack_ma87ba.mp3" },
+        { name: "Desire (Remix)", artist: "Years & Years - Gryffin", url: "https://res.cloudinary.com/dixoqghwt/video/upload/f_auto,q_auto/v1772743718/Years_Years_-_Desire_Gryffin_Remix_bu1c5i.mp3" },
+        { name: "Ça Plane Pour Moi", artist: "Plastic Bertrand", url: "https://res.cloudinary.com/dixoqghwt/video/upload/f_auto,q_auto/v1773167778/Plastic_Bertrand_-_%C3%87a_Plane_Pour_Moi_Sub_Espa%C3%B1ol_t1nnbt.mp3" },
+        { name: "Heads Will Roll (Remix)", artist: "Yeah Yeah Yeahs - A-Trak", url: "https://res.cloudinary.com/dixoqghwt/video/upload/f_auto,q_auto/v1773168038/Project_X_Movie_Music_Heads_Will_Roll_A-Trak_Remix_-_Yeah_Yeah_Yeahs_sw61j0.mp3" },
+        { name: "Sleepwalking", artist: "Chain Gang of 1974", url: "https://res.cloudinary.com/dixoqghwt/video/upload/f_auto,q_auto/v1773341468/Chain_Gang_of_1974_-_Sleepwalking_OFFICIAL_HQ_STREAM_vwmsew.mp3" },
+        { name: "The Set Up", artist: "Favored Nations", url: "https://res.cloudinary.com/dixoqghwt/video/upload/f_auto,q_auto/v1773341468/The_Set_Up_vwktta.mp3" }
     ];
 
-
-
     let currentSongIndex = parseInt(localStorage.getItem('music_index')) || 0;
-
-    let savedTime = parseFloat(localStorage.getItem('music_time')) || 0;
-
-
-
-    // Inicialización con Preload
-
     const audio = new Audio();
-
-    audio.preload = "auto"; 
-
     audio.src = playlist[currentSongIndex].url;
-
-    audio.currentTime = savedTime;
-
-
-
-    const musicComponent = document.querySelector('.music-component');
-
-    const graphicContainer = document.querySelector('.music-graphic');
-
-
-
-    if (graphicContainer) {
-
-        graphicContainer.innerHTML = '<span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>';
-
-    }
-
-
+    audio.currentTime = parseFloat(localStorage.getItem('music_time')) || 0;
 
     function updateVisuals() {
-
-        const active = !audio.paused;
-
-        if (musicComponent) musicComponent.classList.toggle('is-playing', active);
-
-        if (graphicContainer) graphicContainer.classList.toggle('is-playing', active);
-
+        const playing = !audio.paused;
+        document.querySelector('.music-component')?.classList.toggle('is-playing', playing);
+        document.querySelector('.music-graphic')?.classList.toggle('is-playing', playing);
     }
-
-
-
-    function updateMetadata() {
-
-        const songNameEl = document.querySelector('.song-name');
-
-        const artistNameEl = document.querySelector('.artist-name');
-
-        
-
-        if (songNameEl && artistNameEl) {
-
-            // Animación: El texto actual sube y desaparece
-
-            gsap.to([songNameEl, artistNameEl], {
-
-                y: -15,
-
-                opacity: 0,
-
-                duration: 0.3,
-
-                ease: "power2.in",
-
-                onComplete: () => {
-
-                    // Cambiamos los textos
-
-                    songNameEl.innerText = playlist[currentSongIndex].name;
-
-                    artistNameEl.innerText = playlist[currentSongIndex].artist;
-
-
-
-                    // Animación: El nuevo texto aparece desde abajo y sube a su posición
-
-                    gsap.fromTo([songNameEl, artistNameEl], 
-
-                        { y: 15, opacity: 0 }, 
-
-                        { y: 0, opacity: 1, duration: 0.4, ease: "power2.out" }
-
-                    );
-
-                }
-
-            });
-
-        }
-
-    }
-
-
-
-    // MEJORA: playSelectedSong con carga forzada (load)
 
     function playSelectedSong() {
-
         audio.pause();
-
         audio.src = playlist[currentSongIndex].url;
-
-        audio.load(); // Despierta la descarga del servidor inmediatamente
-
-        updateMetadata();
-
+        audio.load();
         
-
-        audio.play()
-
-            .then(() => updateVisuals())
-
-            .catch(e => console.log("Carga en curso o interacción requerida"));
-
-    }
-
-
-
-    function nextSong() {
-
-        currentSongIndex = (currentSongIndex + 1) % playlist.length;
-
-        playSelectedSong();
-
-    }
-
-
-
-    function prevSong() {
-
-        currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
-
-        playSelectedSong();
-
-    }
-
-
-
-    audio.addEventListener('ended', nextSong);
-
-
-
-    // Controles con manejo de Promesas
-
-    document.querySelector('.play-pause')?.addEventListener('click', (e) => {
-
-        e.preventDefault();
-
-        if (!audio.paused) {
-
-            audio.pause();
-
-        } else {
-
-            audio.play().then(updateVisuals).catch(() => updateVisuals());
-
+        const sName = document.querySelector('.song-name'), aName = document.querySelector('.artist-name');
+        if (sName && aName) {
+            gsap.to([sName, aName], { y: -15, opacity: 0, duration: 0.3, onComplete: () => {
+                sName.innerText = playlist[currentSongIndex].name;
+                aName.innerText = playlist[currentSongIndex].artist;
+                gsap.fromTo([sName, aName], { y: 15, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4 });
+            }});
         }
+        audio.play().then(updateVisuals).catch(() => {});
+    }
 
+    // Controles
+    document.querySelector('.play-pause')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        audio.paused ? audio.play().then(updateVisuals) : audio.pause();
+        updateVisuals();
     });
-
-
-
-    document.querySelector('.next-song')?.addEventListener('click', nextSong);
-
-    document.querySelector('.previous-song')?.addEventListener('click', prevSong);
-
-
-
-    audio.addEventListener('play', updateVisuals);
-
-    audio.addEventListener('pause', updateVisuals);
-
-
-
-    // Persistencia balanceada
+    document.querySelector('.next-song')?.addEventListener('click', () => { currentSongIndex = (currentSongIndex + 1) % playlist.length; playSelectedSong(); });
+    document.querySelector('.previous-song')?.addEventListener('click', () => { currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length; playSelectedSong(); });
+    
+    audio.addEventListener('ended', () => { currentSongIndex = (currentSongIndex + 1) % playlist.length; playSelectedSong(); });
 
     setInterval(() => {
-
-        if (!audio.paused) {
-
-            localStorage.setItem('music_time', audio.currentTime);
-
-            localStorage.setItem('music_playing', 'true');
-
-        } else {
-
-            localStorage.setItem('music_playing', 'false');
-
-        }
-
+        localStorage.setItem('music_time', audio.currentTime);
         localStorage.setItem('music_index', currentSongIndex);
+        localStorage.setItem('music_playing', !audio.paused);
+    }, 1000);
 
-    }, 800);
-
-
-
-    // MEJORA: Recuperación agresiva tras navegación
-
-    function syncAndResume() {
-
-        const wasPlaying = localStorage.getItem('music_playing') === 'true';
-
-        
-
-        // Para el primer renderizado, ponemos los textos sin animación para evitar saltos
-
-        const songNameEl = document.querySelector('.song-name');
-
-        const artistNameEl = document.querySelector('.artist-name');
-
-        if (songNameEl) songNameEl.innerText = playlist[currentSongIndex].name;
-
-        if (artistNameEl) artistNameEl.innerText = playlist[currentSongIndex].artist;
-
-        
-
-        if (wasPlaying && audio.paused) {
-
-            audio.play().then(updateVisuals).catch(() => {
-
-                const resume = () => { 
-
-                    if (audio.paused) audio.play().then(updateVisuals); 
-
-                    window.removeEventListener('click', resume); 
-
-                    window.removeEventListener('touchstart', resume);
-
-                };
-
-                window.addEventListener('click', resume);
-
-                window.addEventListener('touchstart', resume);
-
-            });
-
+    window.addEventListener('load', () => {
+        const sName = document.querySelector('.song-name'), aName = document.querySelector('.artist-name');
+        if (sName) sName.innerText = playlist[currentSongIndex].name;
+        if (aName) aName.innerText = playlist[currentSongIndex].artist;
+        if (localStorage.getItem('music_playing') === 'true' && audio.paused) {
+            const resume = () => { audio.play().then(updateVisuals); window.removeEventListener('click', resume); };
+            window.addEventListener('click', resume);
         }
-
         updateVisuals();
+    });
 
+    /**
+     * 4. LENIS & MENÚ
+     */
+    const lenis = new Lenis({
+        duration: 1.2,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true
+    });
+
+    function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+    requestAnimationFrame(raf);
+
+    const menuBtn = document.querySelector('.btn-symbol');
+    let isMenuOpen = false;
+
+    if (menuBtn) {
+        menuBtn.addEventListener('click', () => {
+            isMenuOpen = !isMenuOpen;
+            if (isMenuOpen) {
+                lenis.stop();
+                document.body.classList.add('no-scroll');
+            } else {
+                lenis.start();
+                document.body.classList.remove('no-scroll');
+            }
+        });
     }
 
-
-
-    window.addEventListener('load', syncAndResume);
-
-    window.addEventListener('pageshow', (e) => { if (e.persisted) syncAndResume(); });
-
+    window.addEventListener('load', () => lenis.resize());
 </script>
 
-
-
-    
-
-    <script src="https://unpkg.com/lenis@1.1.2/dist/lenis.min.js"></script>
-
-    <script>
-
-        // 1. Inicialización de Lenis
-
-        const lenis = new Lenis({
-
-            duration: 1.2,
-
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-
-            smoothWheel: true,
-
-            autoResize: true // Intenta recalcular automáticamente
-
-        });
-
-
-
-        function raf(time) {
-
-            lenis.raf(time);
-
-            requestAnimationFrame(raf);
-
-        }
-
-        requestAnimationFrame(raf);
-
-
-
-        // 2. SOLUCIÓN AL BLOQUEO: Forzar recálculo cuando carguen las imágenes
-
-        // Esto es vital para páginas largas con muchas imágenes
-
-        window.addEventListener('load', () => {
-
-            lenis.resize();
-
-        });
-
-
-
-        // Detectar imágenes que cargan después (Lazy Load)
-
-        document.querySelectorAll('img').forEach(img => {
-
-            img.addEventListener('load', () => {
-
-                lenis.resize();
-
-            });
-
-        });
-
-
-
-        // 3. Control del Menú Personalizado (.btn-symbol)
-
-        const menuBtn = document.querySelector('.btn-symbol');
-
-        let isMenuOpen = false;
-
-
-
-        if (menuBtn) {
-
-            menuBtn.addEventListener('click', () => {
-
-                isMenuOpen = !isMenuOpen;
-
-                if (isMenuOpen) {
-
-                    lenis.stop();
-
-                    document.body.classList.add('no-scroll');
-
-                } else {
-
-                    lenis.start();
-
-                    document.body.classList.remove('no-scroll');
-
-                }
-
-            });
-
-        }
-
-    </script>
-
-
-
-    <style>
-
-        /* CSS CRÍTICO para Lenis en Webflow */
-
-        html {
-
-            height: auto !important;
-
-            /* Permite que Lenis calcule la altura real */
-
-        }
-
-
-
-        body.no-scroll {
-
-            overflow: hidden !important;
-
-            height: 100vh !important;
-
-        }
-
-    </style>
+<style>
+    html { height: auto !important; }
+    body.no-scroll { overflow: hidden !important; height: 100vh !important; }
+    .custom-cursor { pointer-events: none; position: fixed; z-index: 9999; }
+</style>
     
 </body>
 
