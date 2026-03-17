@@ -491,10 +491,14 @@
 
 <script>
     /**
-     * 1. CONFIGURACIÓN GLOBAL
+     * 1. GLOBAL RESET & PERFORMANCE
      */
     (function () {
         if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+        // Solo resetear al cargar si no hay un hash en la URL
+        if (!window.location.hash) {
+            window.scrollTo(0, 0);
+        }
     })();
 
     const originalTitle = document.title;
@@ -503,7 +507,7 @@
     });
 
     /**
-     * 2. LÓGICA DE TRANSICIÓN (FIX PARA ANCLAS)
+     * 2. TRANSICIONES (FADE IN/OUT) - FIX PARA ANCLAS
      */
     document.addEventListener("DOMContentLoaded", function () {
         const container = document.querySelector('.container');
@@ -521,39 +525,28 @@
 
             const href = target.getAttribute('href');
             
-            // SI ES UN ANCLA (ej. #home) o link vacío, SALIMOS. No ejecutamos fade-out.
-            if (!href || href.startsWith('#') || href.includes('#')) {
-                // Si el link tiene un ancla pero es de la misma página, dejamos que Lenis/Webflow actúen
-                const url = new URL(target.href);
-                if (url.pathname === window.location.pathname) return; 
-            }
+            // --- AJUSTE CRÍTICO: Si es ancla, salir de la función de transición ---
+            if (!href || href.startsWith('#') || href.includes('#')) return;
 
-            const targetUrl = new URL(target.href, window.location.origin);
-            const isSamePage = targetUrl.origin === window.location.origin && targetUrl.pathname === window.location.pathname;
-
-            if (isSamePage) return;
-
-            const isInternal = targetUrl.origin === window.location.origin && target.target !== '_blank';
+            const isInternal = (href.startsWith('/') || href.includes(window.location.hostname)) && target.target !== '_blank';
 
             if (isInternal && container) {
                 e.preventDefault();
                 container.style.pointerEvents = 'none';
                 container.classList.remove('transition-active');
                 container.classList.add('fade-out');
-                setTimeout(() => { window.location.href = target.href; }, 600);
+                setTimeout(() => { window.location.href = target.href; }, 500);
             }
         });
     });
 
     /**
-     * 3. REPRODUCTOR (8 CANCIONES)
+     * 3. REPRODUCTOR (TU LÓGICA ORIGINAL)
      */
     const playlist = [
         { name: "I Think I Like It", artist: "Fake Blood", url: "https://res.cloudinary.com/dixoqghwt/video/upload/f_auto,q_auto/v1772742577/Fake_Blood_-_I_Think_I_Like_It_We_Are_Your_Friends_Soundtrack_ma87ba.mp3" },
-        { name: "I Ain't Worried", artist: "OneRepublic", url: "https://res.cloudinary.com/dixoqghwt/video/upload/f_auto,q_auto/v1772742577/OneRepublic_-_I_Aint_Worried_From_Top_Gun__Maverick_Official_Music_Video_psu4ut.mp3" },
         { name: "Desire (Remix)", artist: "Years & Years - Gryffin", url: "https://res.cloudinary.com/dixoqghwt/video/upload/f_auto,q_auto/v1772743718/Years_Years_-_Desire_Gryffin_Remix_bu1c5i.mp3" },
         { name: "Ça Plane Pour Moi", artist: "Plastic Bertrand", url: "https://res.cloudinary.com/dixoqghwt/video/upload/f_auto,q_auto/v1773167778/Plastic_Bertrand_-_%C3%87a_Plane_Pour_Moi_Sub_Espa%C3%B1ol_t1nnbt.mp3" },
-        { name: "Don't You Worry Child", artist: "Swedish House Mafia", url: "https://res.cloudinary.com/dixoqghwt/video/upload/f_auto,q_auto/v1773167778/Swedish_House_Mafia_ft._John_Martin_-_Don_t_You_Worry_Child_Official_Video_wnnyav.mp3" },
         { name: "Heads Will Roll (Remix)", artist: "Yeah Yeah Yeahs - A-Trak", url: "https://res.cloudinary.com/dixoqghwt/video/upload/f_auto,q_auto/v1773168038/Project_X_Movie_Music_Heads_Will_Roll_A-Trak_Remix_-_Yeah_Yeah_Yeahs_sw61j0.mp3" },
         { name: "Sleepwalking", artist: "Chain Gang of 1974", url: "https://res.cloudinary.com/dixoqghwt/video/upload/f_auto,q_auto/v1773341468/Chain_Gang_of_1974_-_Sleepwalking_OFFICIAL_HQ_STREAM_vwmsew.mp3" },
         { name: "The Set Up", artist: "Favored Nations", url: "https://res.cloudinary.com/dixoqghwt/video/upload/f_auto,q_auto/v1773341468/The_Set_Up_vwktta.mp3" }
@@ -575,32 +568,29 @@
         graphicContainer?.classList.toggle('is-playing', active);
     }
 
-    function updateMetadata(animate = true) {
+    function updateMetadata() {
         const sName = document.querySelector('.song-name');
         const aName = document.querySelector('.artist-name');
-        if (!sName || !aName) return;
-        if (animate) {
+        if (sName && aName) {
             gsap.to([sName, aName], { y: -15, opacity: 0, duration: 0.3, onComplete: () => {
                 sName.innerText = playlist[currentSongIndex].name;
                 aName.innerText = playlist[currentSongIndex].artist;
-                gsap.fromTo([sName, aName], { y: 15, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, stagger: 0.1 });
+                gsap.fromTo([sName, aName], { y: 15, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4 });
             }});
-        } else {
-            sName.innerText = playlist[currentSongIndex].name;
-            aName.innerText = playlist[currentSongIndex].artist;
         }
     }
 
     function playSelectedSong() {
         audio.pause(); audio.src = playlist[currentSongIndex].url; audio.load();
-        updateMetadata(true); audio.play().then(updateVisuals).catch(() => {});
+        updateMetadata(); audio.play().then(updateVisuals).catch(() => {});
     }
 
     document.querySelector('.play-pause')?.addEventListener('click', (e) => {
-        e.preventDefault(); audio.paused ? audio.play().then(updateVisuals) : audio.pause(); updateVisuals();
+        e.preventDefault(); audio.paused ? audio.play().then(updateVisuals) : audio.pause();
     });
-    document.querySelector('.next-song')?.addEventListener('click', (e) => { e.preventDefault(); currentSongIndex = (currentSongIndex + 1) % playlist.length; playSelectedSong(); });
-    document.querySelector('.previous-song')?.addEventListener('click', (e) => { e.preventDefault(); currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length; playSelectedSong(); });
+    document.querySelector('.next-song')?.addEventListener('click', () => { currentSongIndex = (currentSongIndex + 1) % playlist.length; playSelectedSong(); });
+    document.querySelector('.previous-song')?.addEventListener('click', () => { currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length; playSelectedSong(); });
+    
     audio.addEventListener('ended', () => { currentSongIndex = (currentSongIndex + 1) % playlist.length; playSelectedSong(); });
     
     setInterval(() => {
@@ -609,8 +599,23 @@
         localStorage.setItem('music_playing', !audio.paused);
     }, 800);
 
+    function syncAndResume() {
+        const sName = document.querySelector('.song-name');
+        const aName = document.querySelector('.artist-name');
+        if (sName) sName.innerText = playlist[currentSongIndex].name;
+        if (aName) aName.innerText = playlist[currentSongIndex].artist;
+        if (localStorage.getItem('music_playing') === 'true' && audio.paused) {
+            audio.play().then(updateVisuals).catch(() => {
+                const res = () => { if(audio.paused) audio.play().then(updateVisuals); window.removeEventListener('click', res); };
+                window.addEventListener('click', res);
+            });
+        }
+        updateVisuals();
+    }
+    window.addEventListener('load', syncAndResume);
+
     /**
-     * 4. CURSOR (DESKTOP)
+     * 4. CUSTOM CURSOR
      */
     document.addEventListener("DOMContentLoaded", function () {
         if (window.innerWidth <= 991) return;
@@ -621,7 +626,6 @@
         window.addEventListener('mousemove', (e) => { mX = e.clientX; mY = e.clientY; });
         function anim() {
             cX += (mX - cX) * 0.1; cY += (mY - cY) * 0.1;
-            const r = cursor.getBoundingClientRect();
             cursor.style.transform = `translate3d(${cX + 20}px, ${cY + 20}px, 0) scale(${isH ? 1 : 0.8})`;
             requestAnimationFrame(anim);
         }
@@ -631,37 +635,27 @@
             if (l) { isH = true; if (cursorText) cursorText.textContent = l.getAttribute('data-cursor'); cursor.classList.add('is-visible'); }
         });
         document.addEventListener('mouseout', (e) => { if (e.target.closest('[data-cursor]')) { isH = false; cursor.classList.remove('is-visible'); } });
-        
-        updateMetadata(false);
-        if (localStorage.getItem('music_playing') === 'true' && audio.paused) {
-            audio.play().then(updateVisuals).catch(() => {
-                const res = () => { if(audio.paused) audio.play().then(updateVisuals); window.removeEventListener('click', res); };
-                window.addEventListener('click', res);
-            });
-        }
     });
 
     /**
-     * 5. LENIS SMOOTH SCROLL (MODIFICADO PARA ANCLAS)
+     * 5. LENIS (AJUSTADO: Lento-Rápido-Lento)
      */
     const lenis = new Lenis({
-        duration: 1.2,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        duration: 1.5, // Un poco más largo para apreciar la curva
+        easing: (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2, // Curva Custom: Inicia lento, acelera, termina lento
         smoothWheel: true
     });
 
     function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
     requestAnimationFrame(raf);
 
-    // FIX PARA ENLACES CON ANCLA: Forzar a Lenis a realizar el scroll
+    // Ajuste para que los links internos con # funcionen con Lenis
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
             const targetId = this.getAttribute('href');
-            const targetElement = document.querySelector(targetId);
-            if (targetElement) {
-                lenis.scrollTo(targetElement, { offset: 0, duration: 1.5 });
-            }
+            const target = document.querySelector(targetId);
+            if (target) lenis.scrollTo(target);
         });
     });
 
