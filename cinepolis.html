@@ -491,13 +491,10 @@
 
 <script>
     /**
-     * 1. CONFIGURACIÓN GLOBAL Y OPTIMIZACIÓN DE MEMORIA
+     * 1. CONFIGURACIÓN GLOBAL
      */
     (function () {
-        if ('scrollRestoration' in history) {
-            history.scrollRestoration = 'manual';
-        }
-        // Eliminamos el scrollTo(0,0) agresivo que causaba el flicker en las anclas
+        if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     })();
 
     const originalTitle = document.title;
@@ -506,35 +503,34 @@
     });
 
     /**
-     * 2. LÓGICA DE TRANSICIÓN UNIFICADA (SOLUCIÓN AL BUG DE NAVEGACIÓN)
+     * 2. LÓGICA DE TRANSICIÓN (FIX PARA ANCLAS)
      */
     document.addEventListener("DOMContentLoaded", function () {
         const container = document.querySelector('.container');
 
-        // --- ENTRADA (FADE IN) ---
         if (container) {
             const entryDelay = (window.performance && window.performance.navigation.type === 2) ? 50 : 200;
             requestAnimationFrame(() => {
-                setTimeout(() => {
-                    container.classList.add('transition-active');
-                }, entryDelay);
+                setTimeout(() => { container.classList.add('transition-active'); }, entryDelay);
             });
         }
 
-        // --- SALIDA (FADE OUT) CON FILTRO DE ANCLAS ---
         document.addEventListener('click', function (e) {
             const target = e.target.closest('a');
             if (!target) return;
 
             const href = target.getAttribute('href');
-            if (!href || href.startsWith('#')) return;
+            
+            // SI ES UN ANCLA (ej. #home) o link vacío, SALIMOS. No ejecutamos fade-out.
+            if (!href || href.startsWith('#') || href.includes('#')) {
+                // Si el link tiene un ancla pero es de la misma página, dejamos que Lenis/Webflow actúen
+                const url = new URL(target.href);
+                if (url.pathname === window.location.pathname) return; 
+            }
 
-            // Verificación técnica: ¿Es la misma página?
             const targetUrl = new URL(target.href, window.location.origin);
-            const isSamePage = targetUrl.origin === window.location.origin && 
-                               targetUrl.pathname === window.location.pathname;
+            const isSamePage = targetUrl.origin === window.location.origin && targetUrl.pathname === window.location.pathname;
 
-            // Si es la misma página (ej. link al caso de estudio actual), NO ejecutar fade
             if (isSamePage) return;
 
             const isInternal = targetUrl.origin === window.location.origin && target.target !== '_blank';
@@ -544,26 +540,13 @@
                 container.style.pointerEvents = 'none';
                 container.classList.remove('transition-active');
                 container.classList.add('fade-out');
-
-                setTimeout(() => {
-                    window.location.href = target.href;
-                }, 600);
+                setTimeout(() => { window.location.href = target.href; }, 600);
             }
         });
     });
 
-    // Fix para botones del navegador
-    window.addEventListener('pageshow', (e) => {
-        const container = document.querySelector('.container');
-        if (e.persisted && container) {
-            container.classList.remove('fade-out');
-            container.classList.add('transition-active');
-            container.style.pointerEvents = 'auto';
-        }
-    });
-
     /**
-     * 3. REPRODUCTOR: PLAYLIST Y PERSISTENCIA (8 CANCIONES)
+     * 3. REPRODUCTOR (8 CANCIONES)
      */
     const playlist = [
         { name: "I Think I Like It", artist: "Fake Blood", url: "https://res.cloudinary.com/dixoqghwt/video/upload/f_auto,q_auto/v1772742577/Fake_Blood_-_I_Think_I_Like_It_We_Are_Your_Friends_Soundtrack_ma87ba.mp3" },
@@ -596,12 +579,11 @@
         const sName = document.querySelector('.song-name');
         const aName = document.querySelector('.artist-name');
         if (!sName || !aName) return;
-
         if (animate) {
-            gsap.to([sName, aName], { y: -15, opacity: 0, duration: 0.3, ease: "power2.in", onComplete: () => {
+            gsap.to([sName, aName], { y: -15, opacity: 0, duration: 0.3, onComplete: () => {
                 sName.innerText = playlist[currentSongIndex].name;
                 aName.innerText = playlist[currentSongIndex].artist;
-                gsap.fromTo([sName, aName], { y: 15, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, stagger: 0.1, ease: "power2.out" });
+                gsap.fromTo([sName, aName], { y: 15, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, stagger: 0.1 });
             }});
         } else {
             sName.innerText = playlist[currentSongIndex].name;
@@ -610,21 +592,15 @@
     }
 
     function playSelectedSong() {
-        audio.pause();
-        audio.src = playlist[currentSongIndex].url;
-        audio.load();
-        updateMetadata(true);
-        audio.play().then(updateVisuals).catch(() => {});
+        audio.pause(); audio.src = playlist[currentSongIndex].url; audio.load();
+        updateMetadata(true); audio.play().then(updateVisuals).catch(() => {});
     }
 
     document.querySelector('.play-pause')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        audio.paused ? audio.play().then(updateVisuals) : audio.pause();
-        updateVisuals();
+        e.preventDefault(); audio.paused ? audio.play().then(updateVisuals) : audio.pause(); updateVisuals();
     });
     document.querySelector('.next-song')?.addEventListener('click', (e) => { e.preventDefault(); currentSongIndex = (currentSongIndex + 1) % playlist.length; playSelectedSong(); });
     document.querySelector('.previous-song')?.addEventListener('click', (e) => { e.preventDefault(); currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length; playSelectedSong(); });
-    
     audio.addEventListener('ended', () => { currentSongIndex = (currentSongIndex + 1) % playlist.length; playSelectedSong(); });
     
     setInterval(() => {
@@ -634,7 +610,7 @@
     }, 800);
 
     /**
-     * 4. CUSTOM CURSOR (DESKTOP)
+     * 4. CURSOR (DESKTOP)
      */
     document.addEventListener("DOMContentLoaded", function () {
         if (window.innerWidth <= 991) return;
@@ -646,9 +622,7 @@
         function anim() {
             cX += (mX - cX) * 0.1; cY += (mY - cY) * 0.1;
             const r = cursor.getBoundingClientRect();
-            let xO = 20, yO = 20;
-            if (cX + r.width + 20 > window.innerWidth) xO = -(r.width + 20);
-            cursor.style.transform = `translate3d(${cX + xO}px, ${cY + yO}px, 0) scale(${isH ? 1 : 0.8})`;
+            cursor.style.transform = `translate3d(${cX + 20}px, ${cY + 20}px, 0) scale(${isH ? 1 : 0.8})`;
             requestAnimationFrame(anim);
         }
         anim();
@@ -658,7 +632,6 @@
         });
         document.addEventListener('mouseout', (e) => { if (e.target.closest('[data-cursor]')) { isH = false; cursor.classList.remove('is-visible'); } });
         
-        // Sincronización inicial de música al cargar
         updateMetadata(false);
         if (localStorage.getItem('music_playing') === 'true' && audio.paused) {
             audio.play().then(updateVisuals).catch(() => {
@@ -669,15 +642,28 @@
     });
 
     /**
-     * 5. LENIS SMOOTH SCROLL
+     * 5. LENIS SMOOTH SCROLL (MODIFICADO PARA ANCLAS)
      */
     const lenis = new Lenis({
         duration: 1.2,
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         smoothWheel: true
     });
+
     function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
     requestAnimationFrame(raf);
+
+    // FIX PARA ENLACES CON ANCLA: Forzar a Lenis a realizar el scroll
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+                lenis.scrollTo(targetElement, { offset: 0, duration: 1.5 });
+            }
+        });
+    });
 
     window.addEventListener('load', () => lenis.resize());
     document.querySelectorAll('img').forEach(img => img.addEventListener('load', () => lenis.resize()));
