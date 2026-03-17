@@ -491,29 +491,21 @@
 
 <script>
     /**
-     * 1. CONFIGURACIÓN GLOBAL Y ANTI-FLICKER
+     * 1. CONFIGURACIÓN INICIAL
      */
     (function () {
         if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
         if (!window.location.hash) window.scrollTo(0, 0);
     })();
 
-    const originalTitle = document.title;
-    document.addEventListener("visibilitychange", () => {
-        document.title = document.hidden ? "Come back Bob :(" : originalTitle;
-    });
-
     /**
-     * 2. TRANSICIONES DE PÁGINA (FADE IN/OUT)
-     * Optimizada para no interferir con anclas o responsive
+     * 2. TRANSICIONES (FADE IN/OUT) - FIX RADICAL PARA NAV
      */
     document.addEventListener("DOMContentLoaded", function () {
         const container = document.querySelector('.container');
-
         if (container) {
-            const entryDelay = (window.performance && window.performance.navigation.type === 2) ? 50 : 200;
             requestAnimationFrame(() => {
-                setTimeout(() => { container.classList.add('transition-active'); }, entryDelay);
+                setTimeout(() => { container.classList.add('transition-active'); }, 200);
             });
         }
 
@@ -523,8 +515,15 @@
 
             const href = target.getAttribute('href');
             
-            // PROTECCIÓN: Si es un ancla (#), el reproductor o no tiene link, ignorar transición
-            if (!href || href.startsWith('#') || href.includes('#')) return;
+            // EXCEPCIÓN CRÍTICA: Si el click es en el menú o un ancla, NO hacer nada.
+            // Esto permite que las interacciones nativas de Webflow corran sin interferencia.
+            if (!href || 
+                href.startsWith('#') || 
+                target.classList.contains('btn-symbol') || 
+                target.closest('.navigation') || 
+                target.getAttribute('data-w-id')) { 
+                return; 
+            }
 
             const isInternal = (href.startsWith('/') || href.includes(window.location.hostname)) && target.target !== '_blank';
 
@@ -539,7 +538,7 @@
     });
 
     /**
-     * 3. REPRODUCTOR DE MÚSICA (LÓGICA Danny UX)
+     * 3. REPRODUCTOR (TU LÓGICA ORIGINAL)
      */
     const playlist = [
         { name: "I Think I Like It", artist: "Fake Blood", url: "https://res.cloudinary.com/dixoqghwt/video/upload/f_auto,q_auto/v1772742577/Fake_Blood_-_I_Think_I_Like_It_We_Are_Your_Friends_Soundtrack_ma87ba.mp3" },
@@ -566,7 +565,8 @@
         graphicContainer?.classList.toggle('is-playing', active);
     }
 
-    function updateMetadata() {
+    function playSelectedSong() {
+        audio.pause(); audio.src = playlist[currentSongIndex].url; audio.load();
         const sName = document.querySelector('.song-name');
         const aName = document.querySelector('.artist-name');
         if (sName && aName) {
@@ -576,18 +576,12 @@
                 gsap.fromTo([sName, aName], { y: 15, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4 });
             }});
         }
+        audio.play().then(updateVisuals).catch(() => {});
     }
 
-    function playSelectedSong() {
-        audio.pause(); audio.src = playlist[currentSongIndex].url; audio.load();
-        updateMetadata(); audio.play().then(updateVisuals).catch(() => {});
-    }
-
-    // Controles
+    // Handlers del reproductor
     document.querySelector('.play-pause')?.addEventListener('click', (e) => {
-        e.preventDefault(); 
-        audio.paused ? audio.play().then(updateVisuals) : audio.pause();
-        updateVisuals();
+        e.preventDefault(); audio.paused ? audio.play().then(updateVisuals) : audio.pause();
     });
     document.querySelector('.next-song')?.addEventListener('click', (e) => { e.preventDefault(); currentSongIndex = (currentSongIndex + 1) % playlist.length; playSelectedSong(); });
     document.querySelector('.previous-song')?.addEventListener('click', (e) => { e.preventDefault(); currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length; playSelectedSong(); });
@@ -602,20 +596,17 @@
         localStorage.setItem('music_playing', !audio.paused);
     }, 800);
 
-    function syncAndResume() {
+    window.addEventListener('load', () => {
         const sName = document.querySelector('.song-name');
         const aName = document.querySelector('.artist-name');
         if (sName) sName.innerText = playlist[currentSongIndex].name;
         if (aName) aName.innerText = playlist[currentSongIndex].artist;
         if (localStorage.getItem('music_playing') === 'true' && audio.paused) {
-            audio.play().then(updateVisuals).catch(() => {
-                const res = () => { if(audio.paused) audio.play().then(updateVisuals); window.removeEventListener('click', res); };
-                window.addEventListener('click', res);
-            });
+            const res = () => { if(audio.paused) audio.play().then(updateVisuals); window.removeEventListener('click', res); };
+            window.addEventListener('click', res);
         }
         updateVisuals();
-    }
-    window.addEventListener('load', syncAndResume);
+    });
 
     /**
      * 4. LENIS & SMOOTH SCROLL (RESTAURADO)
@@ -629,7 +620,7 @@
     function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
     requestAnimationFrame(raf);
 
-    // SMOTH SCROLL SOLO PARA #HOME (No afecta al menú mobile ni otros #)
+    // SMOTH SCROLL SOLO PARA #HOME
     document.addEventListener('click', (e) => {
         const anchor = e.target.closest('a[href="#home"]');
         if (anchor) {
@@ -645,64 +636,37 @@
     });
 
     window.addEventListener('load', () => lenis.resize());
-    document.querySelectorAll('img').forEach(img => img.addEventListener('load', () => lenis.resize()));
 
     /**
-     * 5. CONTROL DE MENÚ MOBILE (FIX)
+     * 5. MANEJO DE MENÚ (LENIS STOP/START)
      */
-    const menuBtn = document.querySelector('.btn-symbol');
-    if (menuBtn) {
-        menuBtn.addEventListener('click', () => {
-            // Un pequeño delay para asegurar que Webflow ejecute su interacción
+    $(document).ready(function() {
+        $('.btn-symbol').on('click', function() {
+            // Esperamos un instante a que Webflow cambie el estado
             setTimeout(() => {
-                const isOpen = document.body.classList.contains('no-scroll') || menuBtn.classList.contains('is-open'); // Ajusta 'is-open' según tu clase de Webflow si existe
-                if (isOpen) {
-                    lenis.stop();
+                // Si el menú se abre, detenemos Lenis. Si se cierra, lo activamos.
+                if ($('.navigation').hasClass('is-open') || $(this).hasClass('is-active')) {
+                   lenis.stop();
                 } else {
-                    lenis.start();
+                   lenis.start();
                 }
-            }, 50);
+            }, 100);
         });
-    }
-
-    /**
-     * 6. CUSTOM CURSOR (DESKTOP ONLY)
-     */
-    if (window.innerWidth > 991) {
-        const cursor = document.querySelector('.custom-cursor');
-        const cursorText = document.querySelector('.cursor-text');
-        if (cursor) {
-            let mX = 0, mY = 0, cX = 0, cY = 0, isH = false;
-            window.addEventListener('mousemove', (e) => { mX = e.clientX; mY = e.clientY; });
-            function anim() {
-                cX += (mX - cX) * 0.1; cY += (mY - cY) * 0.1;
-                cursor.style.transform = `translate3d(${cX + 20}px, ${cY + 20}px, 0) scale(${isH ? 1 : 0.8})`;
-                requestAnimationFrame(anim);
-            }
-            anim();
-            document.addEventListener('mouseover', (e) => {
-                const l = e.target.closest('[data-cursor]');
-                if (l) { isH = true; if (cursorText) cursorText.textContent = l.getAttribute('data-cursor'); cursor.classList.add('is-visible'); }
-            });
-            document.addEventListener('mouseout', (e) => { if (e.target.closest('[data-cursor]')) { isH = false; cursor.classList.remove('is-visible'); } });
-        }
-    }
+    });
 </script>
 
 <style>
-    /* Aseguramos que el botón del menú sea siempre visible y cliqueable */
+    /* CSS para asegurar que nada oculte el nav */
     .btn-symbol {
         z-index: 9999 !important;
         pointer-events: auto !important;
     }
     
+    /* El contenedor no debe ocultar el nav en el fade-out si el nav está fuera de él */
+    .transition-active { opacity: 1; transition: opacity 0.5s ease; }
+    .fade-out { opacity: 0; }
+    
     html { height: auto !important; }
-    body.no-scroll { 
-        overflow: hidden !important; 
-        height: 100vh !important; 
-        position: fixed; 
-        width: 100%;
-    }
 </style>
     
 </body>
