@@ -496,176 +496,142 @@
         type="text/javascript" integrity="sha384-gzBIwhMsCFAcyCV+0j5yBegAMTd/Of/7U3CjRIcJ/ko2p5n+E5a2t9re+oxF3Bh2"
         crossorigin="anonymous"></script>
     <script>
-        /**
-         * 1. GLOBAL SCROLL RESET & PERFORMANCE FIXES
-         */
-        (function () {
-            if ('scrollRestoration' in history) {
-                history.scrollRestoration = 'manual';
-            }
-            window.scrollTo(0, 0);
-            window.addEventListener('load', () => window.scrollTo(0, 0));
-        })();
-
-        /**
-         * 2. TÍTULO DINÁMICO (VISIBILITY CHANGE)
-         */
-        const originalTitle = document.title;
-        document.addEventListener("visibilitychange", () => {
-            document.title = document.hidden ? "Come back Bob :(" : originalTitle;
-        });
-
-        /**
-         * 3. LÓGICA DE TRANSICIÓN DE PÁGINA (FADE IN/OUT) - ANTI-FLICKER
-         */
-        document.addEventListener("DOMContentLoaded", function () {
-            const container = document.querySelector('.container');
-
-            // --- ENTRADA (FADE IN) ---
-            if (container) {
-                // Si la página viene de caché (flechas), entramos más rápido para evitar parpadeo
-                const entryDelay = (window.performance && window.performance.navigation.type === 2) ? 50 : 200;
-
-                requestAnimationFrame(() => {
-                    setTimeout(() => {
-                        container.classList.add('transition-active');
-                    }, entryDelay);
-                });
-            }
-
-            // --- SALIDA (FADE OUT) ---
-            document.addEventListener('click', function (e) {
-                const target = e.target.closest('a');
-                if (!target) return;
-
-                const href = target.getAttribute('href');
-                const isInternal = href &&
-                    (href.startsWith('/') || href.includes(window.location.hostname)) &&
-                    !href.includes('#') &&
-                    target.target !== '_blank';
-
-                if (isInternal && container) {
-                    e.preventDefault();
-                    const destination = target.href;
-
-                    // Bloqueamos interacciones para evitar saltos visuales durante la salida
-                    container.style.pointerEvents = 'none';
-                    container.classList.remove('transition-active');
-                    container.classList.add('fade-out');
-
-                    setTimeout(() => {
-                        window.location.href = destination;
-                    }, 700);
-                }
-            });
-        });
-
-        // FIX BOTONES NAVEGADOR (PAGESHOW)
-        window.addEventListener('pageshow', function (event) {
-            const container = document.querySelector('.container');
-            if (event.persisted && container) {
-                container.classList.remove('fade-out');
-                container.classList.add('transition-active');
-                container.style.pointerEvents = 'auto';
-            }
-        });
-
-        /**
-         * 4. CUSTOM CURSOR (DESKTOP ONLY)
-         */
-        document.addEventListener("DOMContentLoaded", function () {
-            if (window.innerWidth <= 991) return;
-
-            const cursor = document.querySelector('.custom-cursor');
-            const cursorText = document.querySelector('.cursor-text');
-            if (!cursor) return;
-
-            let mouseX = 0, mouseY = 0, cursorX = 0, cursorY = 0;
-            let isHovering = false;
-
-            window.addEventListener('mousemove', (e) => {
-                mouseX = e.clientX;
-                mouseY = e.clientY;
-            });
-
-            function animate() {
-                cursorX += (mouseX - cursorX) * 0.1;
-                cursorY += (mouseY - cursorY) * 0.1;
-
-                const cursorRect = cursor.getBoundingClientRect();
-                const offsetValue = 20;
-                let xOffset = offsetValue;
-                let yOffset = offsetValue;
-
-                if (cursorX + cursorRect.width + offsetValue > window.innerWidth) {
-                    xOffset = -(cursorRect.width + offsetValue);
-                }
-
-                const scale = isHovering ? 1 : 0.8;
-                cursor.style.transform = `translate3d(${cursorX + xOffset}px, ${cursorY + yOffset}px, 0) scale(${scale})`;
-                requestAnimationFrame(animate);
-            }
-            animate();
-
-            document.addEventListener('mouseover', (e) => {
-                const link = e.target.closest('[data-cursor]');
-                if (link) {
-                    isHovering = true;
-                    if (cursorText) cursorText.textContent = link.getAttribute('data-cursor');
-                    cursor.classList.add('is-visible');
-                }
-            });
-
-            const hideCursor = (e) => {
-                if (e.target.closest('[data-cursor]')) {
-                    isHovering = false;
-                    cursor.classList.remove('is-visible');
-                }
-            };
-            document.addEventListener('mouseout', hideCursor);
-            document.addEventListener('click', hideCursor);
-        });
-    </script>
-
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<script>
     /**
-     * 1. TRANSICIONES Y ANTI-FLASH (CORREGIDO PARA ANCLAS/SCROLL)
+     * 1. GLOBAL SCROLL RESET & PERFORMANCE FIXES
+     */
+    (function () {
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+        window.scrollTo(0, 0);
+        window.addEventListener('load', () => window.scrollTo(0, 0));
+    })();
+
+    /**
+     * 2. TÍTULO DINÁMICO & VISIBILITY
+     */
+    const originalTitle = document.title;
+    document.addEventListener("visibilitychange", () => {
+        document.title = document.hidden ? "Come back Bob :(" : originalTitle;
+    });
+
+    /**
+     * 3. LÓGICA DE TRANSICIÓN UNIFICADA (CON FIX PARA SMOOTH SCROLL)
      */
     document.addEventListener("DOMContentLoaded", function () {
         const container = document.querySelector('.container');
+
+        // --- ENTRADA (FADE IN) ---
         if (container) {
+            const entryDelay = (window.performance && window.performance.navigation.type === 2) ? 50 : 200;
             requestAnimationFrame(() => {
-                container.classList.add('transition-active');
+                setTimeout(() => {
+                    container.classList.add('transition-active');
+                }, entryDelay);
             });
         }
 
+        // --- MANEJO DE CLICS (TRANSICIÓN VS SCROLL) ---
         document.addEventListener('click', function (e) {
             const target = e.target.closest('a');
             if (!target) return;
-            
-            const href = target.getAttribute('href');
-            
-            // VALIDACIÓN: Si es un ancla (#) o un link a la misma página, NO ejecutar transición
-            const isAnchor = href && href.includes('#');
-            const isSamePage = href === window.location.pathname || href === window.location.href;
 
+            const href = target.getAttribute('href');
+            if (!href) return;
+
+            // Detectar si es un ancla a la misma página (ej: #home o /cinepolis#home)
+            const isAnchor = href.includes('#');
+            const cleanHref = href.split('#')[0];
+            const isSamePage = cleanHref === "" || cleanHref === window.location.pathname || target.href.split('#')[0] === window.location.href.split('#')[0];
+
+            // SI ES ANCLA EN LA MISMA PÁGINA: No hacer nada y dejar que Webflow haga scroll
             if (isAnchor && isSamePage) {
-                // Dejamos que Webflow haga su magia de Smooth Scroll
                 return; 
             }
 
-            const isInternal = href && (href.startsWith('/') || href.includes(window.location.hostname)) && !href.includes('#') && target.target !== '_blank';
+            // SI ES LINK INTERNO A OTRA PÁGINA: Ejecutar Fade Out
+            const isInternal = (href.startsWith('/') || href.includes(window.location.hostname)) && 
+                               target.target !== '_blank';
 
             if (isInternal && container) {
                 e.preventDefault();
+                const destination = target.href;
+
                 container.style.pointerEvents = 'none';
                 container.classList.remove('transition-active');
                 container.classList.add('fade-out');
-                setTimeout(() => { window.location.href = target.href; }, 500);
+
+                setTimeout(() => {
+                    window.location.href = destination;
+                }, 600);
             }
         });
+    });
+
+    // FIX BOTONES NAVEGADOR
+    window.addEventListener('pageshow', function (event) {
+        const container = document.querySelector('.container');
+        if (event.persisted && container) {
+            container.classList.remove('fade-out');
+            container.classList.add('transition-active');
+            container.style.pointerEvents = 'auto';
+        }
+    });
+
+    /**
+     * 4. CUSTOM CURSOR (DESKTOP ONLY)
+     */
+    document.addEventListener("DOMContentLoaded", function () {
+        if (window.innerWidth <= 991) return;
+
+        const cursor = document.querySelector('.custom-cursor');
+        const cursorText = document.querySelector('.cursor-text');
+        if (!cursor) return;
+
+        let mouseX = 0, mouseY = 0, cursorX = 0, cursorY = 0;
+        let isHovering = false;
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function animate() {
+            cursorX += (mouseX - cursorX) * 0.1;
+            cursorY += (mouseY - cursorY) * 0.1;
+
+            const cursorRect = cursor.getBoundingClientRect();
+            const offsetValue = 20;
+            let xOffset = offsetValue;
+            let yOffset = offsetValue;
+
+            if (cursorX + cursorRect.width + offsetValue > window.innerWidth) {
+                xOffset = -(cursorRect.width + offsetValue);
+            }
+
+            const scale = isHovering ? 1 : 0.8;
+            cursor.style.transform = `translate3d(${cursorX + xOffset}px, ${cursorY + yOffset}px, 0) scale(${scale})`;
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        document.addEventListener('mouseover', (e) => {
+            const link = e.target.closest('[data-cursor]');
+            if (link) {
+                isHovering = true;
+                if (cursorText) cursorText.textContent = link.getAttribute('data-cursor');
+                cursor.classList.add('is-visible');
+            }
+        });
+
+        const hideCursor = (e) => {
+            if (e.target.closest('[data-cursor]')) {
+                isHovering = false;
+                cursor.classList.remove('is-visible');
+            }
+        };
+        document.addEventListener('mouseout', hideCursor);
+        document.addEventListener('click', hideCursor);
     });
 
     /**
