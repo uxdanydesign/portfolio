@@ -631,7 +631,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script>
     /**
-     * 1. TRANSICIONES Y ANTI-FLASH
+     * 1. TRANSICIONES Y ANTI-FLASH (CORREGIDO PARA ANCLAS/SCROLL)
      */
     document.addEventListener("DOMContentLoaded", function () {
         const container = document.querySelector('.container');
@@ -644,7 +644,18 @@
         document.addEventListener('click', function (e) {
             const target = e.target.closest('a');
             if (!target) return;
+            
             const href = target.getAttribute('href');
+            
+            // VALIDACIÓN: Si es un ancla (#) o un link a la misma página, NO ejecutar transición
+            const isAnchor = href && href.includes('#');
+            const isSamePage = href === window.location.pathname || href === window.location.href;
+
+            if (isAnchor && isSamePage) {
+                // Dejamos que Webflow haga su magia de Smooth Scroll
+                return; 
+            }
+
             const isInternal = href && (href.startsWith('/') || href.includes(window.location.hostname)) && !href.includes('#') && target.target !== '_blank';
 
             if (isInternal && container) {
