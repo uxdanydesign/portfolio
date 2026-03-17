@@ -491,7 +491,7 @@
 
 <script>
     /**
-     * 1. CONFIGURACIÓN INICIAL
+     * 1. CONFIGURACIÓN GLOBAL
      */
     (function () {
         if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
@@ -499,14 +499,12 @@
     })();
 
     /**
-     * 2. TRANSICIONES (FADE IN/OUT) - FIX RADICAL PARA NAV
+     * 2. TRANSICIONES (FADE IN/OUT) - FIX DEFINITIVO
      */
     document.addEventListener("DOMContentLoaded", function () {
         const container = document.querySelector('.container');
         if (container) {
-            requestAnimationFrame(() => {
-                setTimeout(() => { container.classList.add('transition-active'); }, 200);
-            });
+            setTimeout(() => { container.classList.add('transition-active'); }, 200);
         }
 
         document.addEventListener('click', function (e) {
@@ -515,13 +513,12 @@
 
             const href = target.getAttribute('href');
             
-            // EXCEPCIÓN CRÍTICA: Si el click es en el menú o un ancla, NO hacer nada.
-            // Esto permite que las interacciones nativas de Webflow corran sin interferencia.
+            // SI ES EL MENÚ, EL REPRODUCTOR O UN ANCLA, NO HACER NADA
             if (!href || 
                 href.startsWith('#') || 
-                target.classList.contains('btn-symbol') || 
                 target.closest('.navigation') || 
-                target.getAttribute('data-w-id')) { 
+                target.closest('.music-component') || 
+                target.classList.contains('btn-symbol')) {
                 return; 
             }
 
@@ -538,7 +535,7 @@
     });
 
     /**
-     * 3. REPRODUCTOR (TU LÓGICA ORIGINAL)
+     * 3. REPRODUCTOR (Danny UX Original)
      */
     const playlist = [
         { name: "I Think I Like It", artist: "Fake Blood", url: "https://res.cloudinary.com/dixoqghwt/video/upload/f_auto,q_auto/v1772742577/Fake_Blood_-_I_Think_I_Like_It_We_Are_Your_Friends_Soundtrack_ma87ba.mp3" },
@@ -579,12 +576,13 @@
         audio.play().then(updateVisuals).catch(() => {});
     }
 
-    // Handlers del reproductor
     document.querySelector('.play-pause')?.addEventListener('click', (e) => {
-        e.preventDefault(); audio.paused ? audio.play().then(updateVisuals) : audio.pause();
+        e.preventDefault(); e.stopPropagation();
+        audio.paused ? audio.play().then(updateVisuals) : audio.pause();
+        updateVisuals();
     });
-    document.querySelector('.next-song')?.addEventListener('click', (e) => { e.preventDefault(); currentSongIndex = (currentSongIndex + 1) % playlist.length; playSelectedSong(); });
-    document.querySelector('.previous-song')?.addEventListener('click', (e) => { e.preventDefault(); currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length; playSelectedSong(); });
+    document.querySelector('.next-song')?.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); currentSongIndex = (currentSongIndex + 1) % playlist.length; playSelectedSong(); });
+    document.querySelector('.previous-song')?.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length; playSelectedSong(); });
     
     audio.addEventListener('play', updateVisuals);
     audio.addEventListener('pause', updateVisuals);
@@ -609,7 +607,7 @@
     });
 
     /**
-     * 4. LENIS & SMOOTH SCROLL (RESTAURADO)
+     * 4. LENIS & SMOOTH SCROLL
      */
     const lenis = new Lenis({
         duration: 1.2,
@@ -620,7 +618,7 @@
     function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
     requestAnimationFrame(raf);
 
-    // SMOTH SCROLL SOLO PARA #HOME
+    // Smooth scroll al #home
     document.addEventListener('click', (e) => {
         const anchor = e.target.closest('a[href="#home"]');
         if (anchor) {
@@ -635,37 +633,35 @@
         }
     });
 
-    window.addEventListener('load', () => lenis.resize());
-
     /**
-     * 5. MANEJO DE MENÚ (LENIS STOP/START)
+     * 5. FIX NAV MOBILE (STOP LENIS ON OPEN)
      */
     $(document).ready(function() {
         $('.btn-symbol').on('click', function() {
-            // Esperamos un instante a que Webflow cambie el estado
+            // Un delay para que Webflow procese el cambio de clase
             setTimeout(() => {
-                // Si el menú se abre, detenemos Lenis. Si se cierra, lo activamos.
-                if ($('.navigation').hasClass('is-open') || $(this).hasClass('is-active')) {
-                   lenis.stop();
-                } else {
-                   lenis.start();
-                }
-            }, 100);
+                const navOpen = $('.navigation').hasClass('is-open') || $('.nav-main-links-wrap').is(':visible');
+                navOpen ? lenis.stop() : lenis.start();
+            }, 250);
         });
     });
+
+    window.addEventListener('load', () => lenis.resize());
 </script>
 
 <style>
-    /* CSS para asegurar que nada oculte el nav */
+    /* Asegurar que el botón del menú esté SIEMPRE al frente */
     .btn-symbol {
         z-index: 9999 !important;
         pointer-events: auto !important;
+        display: flex !important;
     }
     
-    /* El contenedor no debe ocultar el nav en el fade-out si el nav está fuera de él */
-    .transition-active { opacity: 1; transition: opacity 0.5s ease; }
-    .fade-out { opacity: 0; }
-    
+    /* El contenedor de links no debe heredarse del fade */
+    .nav-main-links-wrap {
+        z-index: 9998 !important;
+    }
+
     html { height: auto !important; }
 </style>
     
