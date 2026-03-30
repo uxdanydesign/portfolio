@@ -1,21 +1,3 @@
-/* Forzar el hover en las cards para GitHub Pages */
-.card-item:hover {
-    transform: translateY(-10px) !important;
-    transition: transform 0.4s ease-in-out !important;
-}
-
-/* Asegurar que el overlay del nombre del proyecto aparezca */
-.card-item:hover .card-overlay {
-    opacity: 1 !important;
-    display: flex !important;
-}
-
-/* Evitar que el cursor custom bloquee el clic/hover de la card */
-.custom-cursor {
-    pointer-events: none !important;
-}
-
-
 html {
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
@@ -2317,6 +2299,7 @@ h4 {
 }
 
 .case-card {
+  z-index: 10;
   background-color: var(--_portfolio---bg--surface-500);
   border-radius: .75em;
   flex-flow: column;
@@ -2860,6 +2843,7 @@ h4 {
 }
 
 .music-component {
+  z-index: 999;
   grid-column-gap: .75em;
   grid-row-gap: .75em;
   -webkit-backdrop-filter: blur(12px);
