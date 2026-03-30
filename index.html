@@ -775,73 +775,60 @@
         });
 
         /**
- * 4. CUSTOM CURSOR (DESKTOP ONLY) - FIXED FOR HOVER ISSUES
- */
-document.addEventListener("DOMContentLoaded", function () {
-    if (window.innerWidth <= 991) return;
+         * 4. CUSTOM CURSOR (DESKTOP ONLY)
+         */
+        document.addEventListener("DOMContentLoaded", function () {
+            if (window.innerWidth <= 991) return;
 
-    const cursor = document.querySelector('.custom-cursor');
-    const cursorText = document.querySelector('.cursor-text');
-    
-    if (!cursor) return;
+            const cursor = document.querySelector('.custom-cursor');
+            const cursorText = document.querySelector('.cursor-text');
+            if (!cursor) return;
 
-    // CRÍTICO: Esto permite que el mouse "atraviese" el cursor y active el hover de las cards
-    cursor.style.pointerEvents = 'none';
-    cursor.style.position = 'fixed';
-    cursor.style.zIndex = '9999';
+            let mouseX = 0, mouseY = 0, cursorX = 0, cursorY = 0;
+            let isHovering = false;
 
-    let mouseX = 0, mouseY = 0, cursorX = 0, cursorY = 0;
-    let isHovering = false;
+            window.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
 
-    window.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-    });
+            function animate() {
+                cursorX += (mouseX - cursorX) * 0.1;
+                cursorY += (mouseY - cursorY) * 0.1;
 
-    function animate() {
-        // Suavizado del movimiento
-        cursorX += (mouseX - cursorX) * 0.12;
-        cursorY += (mouseY - cursorY) * 0.12;
+                const cursorRect = cursor.getBoundingClientRect();
+                const offsetValue = 20;
+                let xOffset = offsetValue;
+                let yOffset = offsetValue;
 
-        const offsetValue = 20;
-        let xOffset = offsetValue;
-        let yOffset = offsetValue;
+                if (cursorX + cursorRect.width + offsetValue > window.innerWidth) {
+                    xOffset = -(cursorRect.width + offsetValue);
+                }
 
-        // Evitar que el cursor se salga por la derecha de la pantalla
-        if (cursorX + 150 > window.innerWidth) { // 150 es un margen estimado del ancho del cursor
-            xOffset = -150;
-        }
+                const scale = isHovering ? 1 : 0.8;
+                cursor.style.transform = `translate3d(${cursorX + xOffset}px, ${cursorY + yOffset}px, 0) scale(${scale})`;
+                requestAnimationFrame(animate);
+            }
+            animate();
 
-        const scale = isHovering ? 1 : 0.8;
-        cursor.style.transform = `translate3d(${cursorX + xOffset}px, ${cursorY + yOffset}px, 0) scale(${scale})`;
-        
-        requestAnimationFrame(animate);
-    }
-    animate();
+            document.addEventListener('mouseover', (e) => {
+                const link = e.target.closest('[data-cursor]');
+                if (link) {
+                    isHovering = true;
+                    if (cursorText) cursorText.textContent = link.getAttribute('data-cursor');
+                    cursor.classList.add('is-visible');
+                }
+            });
 
-    // Lógica de detección de elementos con data-cursor
-    document.addEventListener('mouseover', (e) => {
-        const target = e.target.closest('[data-cursor]');
-        if (target) {
-            isHovering = true;
-            if (cursorText) cursorText.textContent = target.getAttribute('data-cursor');
-            cursor.classList.add('is-visible');
-        }
-    });
-
-    document.addEventListener('mouseout', (e) => {
-        if (e.target.closest('[data-cursor]')) {
-            isHovering = false;
-            cursor.classList.remove('is-visible');
-        }
-    });
-
-    // Asegurar que se oculte al hacer clic (para transiciones)
-    document.addEventListener('click', () => {
-        isHovering = false;
-        cursor.classList.remove('is-visible');
-    });
-});
+            const hideCursor = (e) => {
+                if (e.target.closest('[data-cursor]')) {
+                    isHovering = false;
+                    cursor.classList.remove('is-visible');
+                }
+            };
+            document.addEventListener('mouseout', hideCursor);
+            document.addEventListener('click', hideCursor);
+        });
     </script>
 
 
