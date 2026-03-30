@@ -774,61 +774,54 @@
             }
         });
 
-        /**
-         * 4. CUSTOM CURSOR (DESKTOP ONLY)
-         */
         document.addEventListener("DOMContentLoaded", function () {
-            if (window.innerWidth <= 991) return;
+    if (window.innerWidth <= 991) return;
 
-            const cursor = document.querySelector('.custom-cursor');
-            const cursorText = document.querySelector('.cursor-text');
-            if (!cursor) return;
+    const cursor = document.querySelector('.custom-cursor');
+    const cursorText = document.querySelector('.cursor-text');
+    if (!cursor) return;
 
-            let mouseX = 0, mouseY = 0, cursorX = 0, cursorY = 0;
-            let isHovering = false;
+    // BLOQUEO TOTAL DE EVENTOS EN EL CURSOR
+    cursor.style.pointerEvents = 'none';
 
-            window.addEventListener('mousemove', (e) => {
-                mouseX = e.clientX;
-                mouseY = e.clientY;
-            });
+    let mouseX = 0, mouseY = 0, cursorX = 0, cursorY = 0;
+    let isHovering = false;
 
-            function animate() {
-                cursorX += (mouseX - cursorX) * 0.1;
-                cursorY += (mouseY - cursorY) * 0.1;
+    window.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    });
 
-                const cursorRect = cursor.getBoundingClientRect();
-                const offsetValue = 20;
-                let xOffset = offsetValue;
-                let yOffset = offsetValue;
+    function animate() {
+        cursorX += (mouseX - cursorX) * 0.12;
+        cursorY += (mouseY - cursorY) * 0.12;
 
-                if (cursorX + cursorRect.width + offsetValue > window.innerWidth) {
-                    xOffset = -(cursorRect.width + offsetValue);
-                }
+        // Ajuste de posición para que el texto no tape el puntero
+        const xOffset = (cursorX + 150 > window.innerWidth) ? -160 : 20;
+        const scale = isHovering ? 1.2 : 0.8;
 
-                const scale = isHovering ? 1 : 0.8;
-                cursor.style.transform = `translate3d(${cursorX + xOffset}px, ${cursorY + yOffset}px, 0) scale(${scale})`;
-                requestAnimationFrame(animate);
-            }
-            animate();
+        cursor.style.transform = `translate3d(${cursorX + xOffset}px, ${cursorY + 20}px, 0) scale(${scale})`;
+        requestAnimationFrame(animate);
+    }
+    animate();
 
-            document.addEventListener('mouseover', (e) => {
-                const link = e.target.closest('[data-cursor]');
-                if (link) {
-                    isHovering = true;
-                    if (cursorText) cursorText.textContent = link.getAttribute('data-cursor');
-                    cursor.classList.add('is-visible');
-                }
-            });
+    // Detección mejorada
+    document.addEventListener('mouseover', (e) => {
+        const target = e.target.closest('[data-cursor]');
+        if (target) {
+            isHovering = true;
+            cursor.classList.add('is-visible');
+            if (cursorText) cursorText.textContent = target.getAttribute('data-cursor');
+        }
+    });
 
-            const hideCursor = (e) => {
-                if (e.target.closest('[data-cursor]')) {
-                    isHovering = false;
-                    cursor.classList.remove('is-visible');
-                }
-            };
-            document.addEventListener('mouseout', hideCursor);
-            document.addEventListener('click', hideCursor);
-        });
+    document.addEventListener('mouseout', (e) => {
+        if (e.target.closest('[data-cursor]')) {
+            isHovering = false;
+            cursor.classList.remove('is-visible');
+        }
+    });
+});
     </script>
 
 
