@@ -853,6 +853,37 @@
                 }
             });
         }
+
+        /**
+ * REMOVER BADGE DE WEBFLOW DEFINITIVAMENTE
+ */
+const removeWebflowBadge = () => {
+  const badge = document.querySelector('.w-webflow-badge');
+  if (badge) {
+    badge.setAttribute('style', 'display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important;');
+    badge.remove(); // Intenta eliminarlo del DOM
+  }
+};
+
+// 1. Ejecutar de inmediato
+removeWebflowBadge();
+
+// 2. Ejecutar cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', removeWebflowBadge);
+
+// 3. Ejecutar después de que todo cargue (por si el script de Webflow es lento)
+window.addEventListener('load', removeWebflowBadge);
+
+// 4. Observador: Si Webflow intenta re-inyectarlo, lo borramos al instante
+const observer = new MutationObserver((mutations) => {
+  removeWebflowBadge();
+});
+
+observer.observe(document.body, {
+  childList: true,
+  subtree: true
+});
+        
     </script>
 
     <style>
@@ -866,6 +897,7 @@
             height: 100vh !important;
         }
     </style>
+    
     
 </body>
 
