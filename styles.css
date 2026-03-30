@@ -1,14 +1,29 @@
 
-/* Forzamos que el cursor sea invisible para el mouse */
-#custom-cursor-id { 
-    pointer-events: none !important; 
-}
+  /* 1. El Cursor NO debe existir para el mouse */
+  .custom-cursor {
+    pointer-events: none !important;
+    z-index: 9999 !important;
+  }
 
-/* Aseguramos que las cards SI reciban eventos */
-.card-item {
+  /* 2. La capa de transición NO debe bloquear el clic/hover mientras es invisible */
+  .container {
+    pointer-events: none !important;
+  }
+
+  /* 3. Las CARDS y el REPRODUCTOR deben ser los únicos que "sientan" el mouse */
+  .card-item, 
+  .music-component, 
+  .btn-symbol, 
+  a {
     pointer-events: auto !important;
-    cursor: pointer !important;
-}
+  }
+
+  /* 4. Forzar el estado Hover que vimos en el video */
+  .card-item:hover {
+    transform: translateY(-10px) !important;
+    z-index: 20 !important;
+  }
+
 
 html {
   -webkit-text-size-adjust: 100%;
