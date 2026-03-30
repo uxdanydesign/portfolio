@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- This site was created in Webflow. https://webflow.com --><!-- Last Published: Mon Mar 30 2026 19:16:52 GMT+0000 (Coordinated Universal Time) -->
+<!-- This site was created in Webflow. https://webflow.com --><!-- Last Published: Mon Mar 30 2026 19:37:07 GMT+0000 (Coordinated Universal Time) -->
 <html data-wf-domain="portfolio-952a9b.webflow.io" data-wf-page="6993f9e7682d716bb49ed11e"
     data-wf-site="6993f9e4682d716bb49ed0ed" data-wf-status="1">
 
@@ -774,54 +774,61 @@
             }
         });
 
+        /**
+         * 4. CUSTOM CURSOR (DESKTOP ONLY)
+         */
         document.addEventListener("DOMContentLoaded", function () {
-    if (window.innerWidth <= 991) return;
+            if (window.innerWidth <= 991) return;
 
-    const cursor = document.querySelector('.custom-cursor');
-    const cursorText = document.querySelector('.cursor-text');
-    if (!cursor) return;
+            const cursor = document.querySelector('.custom-cursor');
+            const cursorText = document.querySelector('.cursor-text');
+            if (!cursor) return;
 
-    // BLOQUEO TOTAL DE EVENTOS EN EL CURSOR
-    cursor.style.pointerEvents = 'none';
+            let mouseX = 0, mouseY = 0, cursorX = 0, cursorY = 0;
+            let isHovering = false;
 
-    let mouseX = 0, mouseY = 0, cursorX = 0, cursorY = 0;
-    let isHovering = false;
+            window.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
 
-    window.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-    });
+            function animate() {
+                cursorX += (mouseX - cursorX) * 0.1;
+                cursorY += (mouseY - cursorY) * 0.1;
 
-    function animate() {
-        cursorX += (mouseX - cursorX) * 0.12;
-        cursorY += (mouseY - cursorY) * 0.12;
+                const cursorRect = cursor.getBoundingClientRect();
+                const offsetValue = 20;
+                let xOffset = offsetValue;
+                let yOffset = offsetValue;
 
-        // Ajuste de posición para que el texto no tape el puntero
-        const xOffset = (cursorX + 150 > window.innerWidth) ? -160 : 20;
-        const scale = isHovering ? 1.2 : 0.8;
+                if (cursorX + cursorRect.width + offsetValue > window.innerWidth) {
+                    xOffset = -(cursorRect.width + offsetValue);
+                }
 
-        cursor.style.transform = `translate3d(${cursorX + xOffset}px, ${cursorY + 20}px, 0) scale(${scale})`;
-        requestAnimationFrame(animate);
-    }
-    animate();
+                const scale = isHovering ? 1 : 0.8;
+                cursor.style.transform = `translate3d(${cursorX + xOffset}px, ${cursorY + yOffset}px, 0) scale(${scale})`;
+                requestAnimationFrame(animate);
+            }
+            animate();
 
-    // Detección mejorada
-    document.addEventListener('mouseover', (e) => {
-        const target = e.target.closest('[data-cursor]');
-        if (target) {
-            isHovering = true;
-            cursor.classList.add('is-visible');
-            if (cursorText) cursorText.textContent = target.getAttribute('data-cursor');
-        }
-    });
+            document.addEventListener('mouseover', (e) => {
+                const link = e.target.closest('[data-cursor]');
+                if (link) {
+                    isHovering = true;
+                    if (cursorText) cursorText.textContent = link.getAttribute('data-cursor');
+                    cursor.classList.add('is-visible');
+                }
+            });
 
-    document.addEventListener('mouseout', (e) => {
-        if (e.target.closest('[data-cursor]')) {
-            isHovering = false;
-            cursor.classList.remove('is-visible');
-        }
-    });
-});
+            const hideCursor = (e) => {
+                if (e.target.closest('[data-cursor]')) {
+                    isHovering = false;
+                    cursor.classList.remove('is-visible');
+                }
+            };
+            document.addEventListener('mouseout', hideCursor);
+            document.addEventListener('click', hideCursor);
+        });
     </script>
 
 
@@ -1053,9 +1060,7 @@
     </style>
 
 
-
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
     <script>
 
@@ -1182,6 +1187,8 @@ observer.observe(document.body, {
 
         
     </script>
+
+    
 </body>
 
 </html>
