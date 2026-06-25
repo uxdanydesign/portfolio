@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <!-- This site was created in Webflow. https://webflow.com --><!-- Last Published: Wed Jun 24 2026 23:24:34 GMT+0000 (Coordinated Universal Time) -->
-<html>
+<html data-wf-domain="portfolio-952a9b.webflow.io" data-wf-page="699f93c711cb60396eb653b2"
+    data-wf-site="6993f9e4682d716bb49ed0ed" data-wf-status="1">
 
 <head>
     <meta charset="utf-8" />
@@ -245,7 +246,10 @@
                             </div>
                         </div>
                     </div>
-                    
+                    <div class="case-study__img-wrapper"><img
+                            src="https://cdn.prod.website-files.com/6993f9e4682d716bb49ed0ed/6a3b7ce4c59c5b918c09aac3_Mockup%20Cinepolis%20App.avif"
+                            loading="eager" alt="A mockup from the seats screen of the cinepolis web"
+                            class="img-case-study" /></div>
                     <div class="case-study-descr-wrap ver">
                         <div class="case-study-descr hor">
                             <h2 class="h2__eye-drive">Commercial products</h2>
@@ -264,7 +268,10 @@
                                 efficiently.</h3>
                         </div>
                     </div>
-                    
+                    <div class="case-study__img-wrapper"><img
+                            src="https://cdn.prod.website-files.com/6993f9e4682d716bb49ed0ed/6a3b7dace22498377ae6850f_Mockup%20Cinepolis%20Mac.avif"
+                            loading="eager" alt="A mockup from the seats screen of the cinepolis web"
+                            class="img-case-study" /></div>
                     <div class="case-study-overview">
                         <div class="quote">
                             <div class="quote-principal">
@@ -570,5 +577,27 @@
         }
     </style>
 </body>
+
+<script>
+  // Ejecutar inmediatamente y esperar a que el DOM esté listo
+  const removeBadge = () => {
+    const badge = document.querySelector('.w-webflow-badge');
+    if (badge) {
+      badge.remove();
+    }
+  };
+
+  // Intentos iniciales rápidos
+  removeBadge();
+  window.addEventListener('DOMContentLoaded', removeBadge);
+  window.addEventListener('load', removeBadge);
+
+  // Observador en caso de que el script de Webflow lo intente reinyectar tarde
+  const observer = new MutationObserver(() => {
+    removeBadge();
+  });
+  
+  observer.observe(document.body, { childList: true, subtree: true });
+</script>
 
 </html>
