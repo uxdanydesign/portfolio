@@ -48,62 +48,24 @@
         }
 
         /* --- PAGE TRANSITIONS (CONTAINER) --- */
-        /* Animación de salida/entrada del container desactivada temporalmente:
-           ahora la transición visual la maneja la cortina (.curtain) */
         .container {
-            opacity: 1;
-            transform: none;
+            opacity: 0;
+            transform: translateY(2em);
+            will-change: opacity, transform;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+
+
         }
 
         .container.transition-active {
             opacity: 1;
-            transform: none;
+            transform: translateY(0);
         }
 
         .container.fade-out {
-            opacity: 1;
-            transform: none;
-        }
-
-        /* --- CURTAIN PAGE TRANSITION --- */
-        .curtain {
-            position: fixed;
-            inset: 0;
-            z-index: 9990;
-            display: flex;
-            pointer-events: none;
-        }
-
-        .curtain__panel {
-            flex: 1 1 0%;
-            height: 100%;
-            background-color: #0F0F0F;
-            transform: translateY(0%);
-            will-change: transform;
-        }
-
-        .curtain__title-wrap {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            pointer-events: none;
-            text-align: center;
-            padding: 0 0.5em;
-        }
-
-        .curtain__title {
-            margin: 0;
-            font-family: 'Sf Pro Display', Arial, sans-serif;
-            font-weight: 500;
-            letter-spacing: -0.01em;
-            font-size: clamp(1.8em, 5vw, 4em);
-            color: var(--_portfolio---text--primary);
-            opacity: 0;
-            transform: translateY(20px);
-            will-change: opacity, transform;
+            opacity: 0 !important;
+            transform: translateY(2em) !important;
+            transition: opacity 0.5s ease, transform 0.5s ease !important;
         }
     </style>
     <style>
@@ -125,14 +87,40 @@
 
         /* Aseguramos que el loader esté por encima de todo y sea visible */
         .loader-wrapper {
+            position: fixed;
+            inset: 0;
+            z-index: 999999;
+            background-color: #0F0F0F;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+
+        .container {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            will-change: opacity, transform;
+        }
+
+
+        .container.transition-active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .loader-wrapper {
             background-color: #0F0F0F;
             opacity: 1;
             visibility: visible;
             position: fixed;
             inset: 0;
             z-index: 10000;
+            inset: 0;
             width: 100vw;
             height: 100vh;
+            z-index: 10000;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -220,16 +208,6 @@
 <body class="body">
     <div class="custom-cursor">
         <div class="cursor-text">Cursor text</div>
-    </div>
-    <div class="curtain" aria-hidden="true">
-        <div class="curtain__panel" data-panel></div>
-        <div class="curtain__panel" data-panel></div>
-        <div class="curtain__panel" data-panel></div>
-        <div class="curtain__panel" data-panel></div>
-        <div class="curtain__panel" data-panel></div>
-        <div class="curtain__title-wrap">
-            <h2 class="curtain__title" data-curtain-title>UX Dany</h2>
-        </div>
     </div>
     <div class="code-embed w-embed">
         <style>
@@ -471,66 +449,24 @@
         });
 
         /**
-         * 3. TRANSICIÓN DE PÁGINA - CORTINA
+         * 3. LÓGICA DE TRANSICIÓN DE PÁGINA (FADE IN/OUT) - ANTI-FLICKER
          */
-        const PAGE_TITLES = {
-            '/': 'UX Dany',
-            '/cinepolis': 'Cinepolis',
-            '/tennis-app': 'Tennis App',
-            '/tennis-spatial-app': 'Apple Vision Pro',
-            '/pamesa-web': 'Pamesa Ceramica'
-        };
-
-        function getPageTitle(pathname) {
-            let path = pathname;
-            if (path.length > 1 && path.endsWith('/')) path = path.slice(0, -1);
-            if (path === '' || path === '/index.html') path = '/';
-            return PAGE_TITLES[path] || document.title;
-        }
-
         document.addEventListener("DOMContentLoaded", function () {
             const container = document.querySelector('.container');
-            const curtain = document.querySelector('.curtain');
-            const panels = curtain ? Array.from(curtain.querySelectorAll('[data-panel]')) : [];
-            const curtainTitle = document.querySelector('[data-curtain-title]');
 
-            function revealPage(options) {
-                options = options || {};
-                if (container) container.classList.add('transition-active');
-                if (!curtain || !panels.length) return;
+            // --- ENTRADA (FADE IN) ---
+            if (container) {
+                // Si la página viene de caché (flechas), entramos más rápido para evitar parpadeo
+                const entryDelay = (window.performance && window.performance.navigation.type === 2) ? 50 : 200;
 
-                // El loader de Home ("Hi, Bob!") ya mostró su propio texto de bienvenida,
-                // así que aquí solo abrimos la cortina sin repetir ningún título.
-                if (options.skipTitle) {
-                    gsap.to(panels, {
-                        yPercent: -100,
-                        duration: 0.6,
-                        ease: 'expo.inOut',
-                        stagger: 0.05,
-                        onComplete: () => { curtain.style.pointerEvents = 'none'; }
-                    });
-                    return;
-                }
-
-                if (curtainTitle) curtainTitle.textContent = getPageTitle(window.location.pathname);
-                const entryDelay = (window.performance && window.performance.navigation.type === 2) ? 0.03 : 0.15;
-
-                gsap.timeline({ delay: entryDelay })
-                    .to(curtainTitle, { opacity: 1, y: 0, duration: 0.45, ease: 'expo.out' })
-                    .to({}, { duration: 0.35 })
-                    .to(curtainTitle, { opacity: 0, y: -20, duration: 0.35, ease: 'expo.in' })
-                    .to(panels, { yPercent: -100, duration: 0.65, ease: 'expo.inOut', stagger: 0.05 }, '-=0.15')
-                    .set(curtain, { css: { pointerEvents: 'none' } });
+                requestAnimationFrame(() => {
+                    setTimeout(() => {
+                        container.classList.add('transition-active');
+                    }, entryDelay);
+                });
             }
 
-            // Home tiene su propio loader ("Hi, Bob!"), así que él decide cuándo llamar a esto.
-            // El resto de páginas revelan la cortina apenas cargan.
-            window.__revealCurtain = revealPage;
-            if (!document.querySelector('.loader-wrapper')) {
-                requestAnimationFrame(revealPage);
-            }
-
-            // --- SALIDA: click en link interno -> cubrir con la cortina y navegar ---
+            // --- SALIDA (FADE OUT) ---
             document.addEventListener('click', function (e) {
                 const target = e.target.closest('a');
                 if (!target) return;
@@ -541,39 +477,30 @@
                     !href.includes('#') &&
                     target.target !== '_blank';
 
-                if (isInternal && curtain && panels.length) {
+                if (isInternal && container) {
                     e.preventDefault();
                     const destination = target.href;
-                    const title = getPageTitle(new URL(destination).pathname);
 
-                    if (container) container.style.pointerEvents = 'none';
-                    curtain.style.pointerEvents = 'auto';
+                    // Bloqueamos interacciones para evitar saltos visuales durante la salida
+                    container.style.pointerEvents = 'none';
+                    container.classList.remove('transition-active');
+                    container.classList.add('fade-out');
 
-                    gsap.timeline({ onComplete: () => { window.location.href = destination; } })
-                        .call(() => { if (curtainTitle) curtainTitle.textContent = title; })
-                        .set(curtainTitle, { opacity: 0, y: 20 })
-                        .to(panels, { yPercent: 0, duration: 0.5, ease: 'expo.inOut', stagger: 0.05 })
-                        .to(curtainTitle, { opacity: 1, y: 0, duration: 0.4, ease: 'expo.out' }, '-=0.15')
-                        .to({}, { duration: 0.35 });
-                } else if (isInternal) {
-                    e.preventDefault();
-                    window.location.href = target.href;
+                    setTimeout(() => {
+                        window.location.href = destination;
+                    }, 700);
                 }
             });
         });
 
         // FIX BOTONES NAVEGADOR (PAGESHOW)
         window.addEventListener('pageshow', function (event) {
-            if (!event.persisted) return;
             const container = document.querySelector('.container');
-            const curtain = document.querySelector('.curtain');
-            const panels = curtain ? curtain.querySelectorAll('[data-panel]') : [];
-            const curtainTitle = document.querySelector('[data-curtain-title]');
-
-            if (container) container.style.pointerEvents = 'auto';
-            if (curtain) curtain.style.pointerEvents = 'none';
-            if (window.gsap && panels.length) gsap.set(panels, { yPercent: -100 });
-            if (window.gsap && curtainTitle) gsap.set(curtainTitle, { opacity: 0, y: -20 });
+            if (event.persisted && container) {
+                container.classList.remove('fade-out');
+                container.classList.add('transition-active');
+                container.style.pointerEvents = 'auto';
+            }
         });
 
         /**
@@ -634,6 +561,37 @@
     </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script>
+        /**
+         * 1. TRANSICIONES Y ANTI-FLASH
+         */
+        document.addEventListener("DOMContentLoaded", function () {
+            const container = document.querySelector('.container');
+            if (container) {
+                // Eliminamos el delay excesivo para que el contenido aparezca en cuanto el DOM esté listo
+                requestAnimationFrame(() => {
+                    container.classList.add('transition-active');
+                });
+            }
+
+            document.addEventListener('click', function (e) {
+                const target = e.target.closest('a');
+                if (!target) return;
+                const href = target.getAttribute('href');
+                const isInternal = href && (href.startsWith('/') || href.includes(window.location.hostname)) && !href.includes('#') && target.target !== '_blank';
+
+                if (isInternal && container) {
+                    e.preventDefault();
+                    container.style.pointerEvents = 'none';
+                    container.classList.remove('transition-active');
+                    container.classList.add('fade-out');
+                    setTimeout(() => { window.location.href = target.href; }, 500); // Reducido a 500ms para mayor agilidad
+                }
+            });
+        });
+
+
+    </script>
     <script src="https://unpkg.com/lenis@1.1.2/dist/lenis.min.js"></script>
     <script>
         // 1. Inicialización de Lenis
@@ -692,6 +650,11 @@
         }
     </style>
 
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
     <script>
 
         document.addEventListener("DOMContentLoaded", function () {
@@ -708,11 +671,7 @@
                 runLoader();
             } else {
                 loader.style.display = 'none';
-                if (window.__revealCurtain) {
-                    window.__revealCurtain();
-                } else if (mainContainer) {
-                    mainContainer.classList.add('transition-active');
-                }
+                if (mainContainer) mainContainer.classList.add('transition-active');
             }
 
             function runLoader() {
@@ -729,7 +688,6 @@
                             ease: "power2.inOut",
                             onStart: () => {
                                 if (mainContainer) mainContainer.classList.add('transition-active');
-                                if (window.__revealCurtain) window.__revealCurtain({ skipTitle: true });
                             },
                             onComplete: () => {
                                 loader.style.display = 'none';
