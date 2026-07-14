@@ -494,11 +494,25 @@
             const panels = curtain ? Array.from(curtain.querySelectorAll('[data-panel]')) : [];
             const curtainTitle = document.querySelector('[data-curtain-title]');
 
-            function revealPage() {
-                if (curtainTitle) curtainTitle.textContent = getPageTitle(window.location.pathname);
+            function revealPage(options) {
+                options = options || {};
                 if (container) container.classList.add('transition-active');
                 if (!curtain || !panels.length) return;
 
+                // El loader de Home ("Hi, Bob!") ya mostró su propio texto de bienvenida,
+                // así que aquí solo abrimos la cortina sin repetir ningún título.
+                if (options.skipTitle) {
+                    gsap.to(panels, {
+                        yPercent: -100,
+                        duration: 0.6,
+                        ease: 'expo.inOut',
+                        stagger: 0.05,
+                        onComplete: () => { curtain.style.pointerEvents = 'none'; }
+                    });
+                    return;
+                }
+
+                if (curtainTitle) curtainTitle.textContent = getPageTitle(window.location.pathname);
                 const entryDelay = (window.performance && window.performance.navigation.type === 2) ? 0.03 : 0.15;
 
                 gsap.timeline({ delay: entryDelay })
@@ -715,6 +729,7 @@
                             ease: "power2.inOut",
                             onStart: () => {
                                 if (mainContainer) mainContainer.classList.add('transition-active');
+                                if (window.__revealCurtain) window.__revealCurtain({ skipTitle: true });
                             },
                             onComplete: () => {
                                 loader.style.display = 'none';
