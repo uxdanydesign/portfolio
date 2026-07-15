@@ -169,9 +169,10 @@
             align-items: center;
         }
 
-        /* Máscara vertical — mismo rol que .loader-text-static */
+        /* Máscara vertical — mismo rol que .loader-text-static.
+           El overflow:hidden se activa por JS justo antes de la salida,
+           para no interferir con el scale de entrada del gif. */
         .loader-gif-mask {
-            overflow: hidden;
             padding-bottom: 0.05em;
         }
 
@@ -758,26 +759,21 @@
                 // 4. Pausa de lectura — igual que el original
                 tl.to({}, { duration: 1.2 });
 
-                // 5. Salida hacia ARRIBA (único cambio respecto al original)
-                tl.to(".loader-title:first-child", {
-                    y: "-115%",
-                    duration: 0.7,
-                    ease: "expo.in"
+                // Activamos la máscara del gif justo antes de salir
+                tl.call(() => {
+                    const mask = document.querySelector('.loader-gif-mask');
+                    if (mask) mask.style.overflow = 'hidden';
                 });
 
-                // .loader-gif-mask tiene overflow:hidden igual que .loader-text-static,
-                // así el corte del gif es idéntico al de las letras
-                tl.to(".loader-gif-inner", {
+                // 5. Salida hacia ARRIBA — los tres salen sincronizados
+                // Las letras salen por su .loader-text-static (overflow:hidden)
+                // El gif sale por .loader-gif-mask (overflow:hidden), sin tocar la entrada
+                tl.to(".loader-title, .loader-gif-mask", {
                     y: "-115%",
                     duration: 0.7,
-                    ease: "expo.in"
-                }, "-=0.7");
-
-                tl.to(".loader-title:last-child", {
-                    y: "-115%",
-                    duration: 0.7,
-                    ease: "expo.in"
-                }, "-=0.7");
+                    ease: "expo.in",
+                    stagger: 0
+                });
             }
         });
 
