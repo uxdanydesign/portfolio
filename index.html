@@ -164,10 +164,15 @@
 
         .loader-gif-outer {
             width: 0;
-            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
+        }
+
+        /* Máscara vertical — mismo rol que .loader-text-static */
+        .loader-gif-mask {
+            overflow: hidden;
+            padding-bottom: 0.05em;
         }
 
         .loader-gif-inner {
@@ -186,33 +191,18 @@
 
         /* Responsive */
         @media screen and (max-width: 991px) {
-            .loader-title {
-                font-size: 4.5em;
-            }
-
-            .loader-gif-outer {
-                width: 8em;
-            }
+            .loader-title { font-size: 4.5em; }
+            .loader-gif-inner { width: 8em; }
         }
 
         @media screen and (max-width: 767px) {
-            .loader-title {
-                font-size: 3.5em;
-            }
-
-            .loader-gif-outer {
-                width: 6em;
-            }
+            .loader-title { font-size: 3.5em; }
+            .loader-gif-inner { width: 6em; }
         }
 
         @media screen and (max-width: 479px) {
-            .loader-title {
-                font-size: 2.8em;
-            }
-
-            .loader-gif-outer {
-                width: 5em;
-            }
+            .loader-title { font-size: 2.8em; }
+            .loader-gif-inner { width: 5em; }
         }
     </style>
 </head>
@@ -295,9 +285,11 @@
                 </div>
 
                 <div class="loader-gif-outer">
-                    <div class="loader-gif-inner">
-                        <img src="https://cdn.prod.website-files.com/6993f9e4682d716bb49ed0ed/69a57449fda135434f0f5909_forallmankind-hibob.gif"
-                            class="loader-gif" alt="Hi Bob">
+                    <div class="loader-gif-mask">
+                        <div class="loader-gif-inner">
+                            <img src="https://cdn.prod.website-files.com/6993f9e4682d716bb49ed0ed/69a57449fda135434f0f5909_forallmankind-hibob.gif"
+                                class="loader-gif" alt="Hi Bob">
+                        </div>
                     </div>
                 </div>
 
@@ -773,9 +765,9 @@
                     ease: "expo.in"
                 });
 
-                // El gif se anima desde el outer (que tiene overflow:hidden)
-                // para que el corte sea idéntico al de .loader-text-static
-                tl.to(".loader-gif-outer", {
+                // .loader-gif-mask tiene overflow:hidden igual que .loader-text-static,
+                // así el corte del gif es idéntico al de las letras
+                tl.to(".loader-gif-inner", {
                     y: "-115%",
                     duration: 0.7,
                     ease: "expo.in"
