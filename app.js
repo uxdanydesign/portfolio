@@ -64,21 +64,6 @@
     document.addEventListener('click', hide);
   }
 
-  /* ---------- 6. Blur progresivo (de abajo hacia arriba) ---------- */
-  const blurs = ['0.04em', '0.08em', '0.16em', '0.32em', '0.64em', '1.2em'];
-  const progressiveBlur = (root = document) => $$('.progressive-blur:not([data-pb])', root).forEach((el) => {
-    el.dataset.pb = '1';
-    const n = blurs.length;
-    blurs.forEach((b, k) => {
-      const p = (i) => (i / (n + 1)) * 100 + '%';
-      const mask = k === n - 1
-        ? `linear-gradient(to bottom, transparent ${p(k)}, #000 ${p(k + 1)})`
-        : `linear-gradient(to bottom, transparent ${p(k)}, #000 ${p(k + 1)}, #000 ${p(k + 2)}, transparent ${p(k + 3)})`;
-      const s = document.createElement('span');
-      s.style.cssText = `backdrop-filter:blur(${b});-webkit-backdrop-filter:blur(${b});mask-image:${mask};-webkit-mask-image:${mask}`;
-      el.appendChild(s);
-    });
-  });
 
   /* ---------- 7. Reproductor: el audio vive en el shell (no se corta al cambiar de página) ---------- */
   const SONGS = 'https://raw.githubusercontent.com/uxdanydesign/songs/main/';
