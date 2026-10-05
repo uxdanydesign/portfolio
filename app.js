@@ -79,11 +79,11 @@
   /* Para agregar una canción: sube el mp3 al repo 'songs' y agrega una línea aquí.
      file = nombre exacto del archivo (con espacios, sin %20). La portada se busca sola en covers/<nombre-en-minusculas-con-guiones>.webp */
   const playlist = [
-    { name: 'Your love is too good', artists: ['Being a DIK', 'Tremolo'], file: 'Being a DIK Episode 6 - Meet Nora!┃Bridget Barkan - Your love is too good.mp3' },
-    { name: 'Best of me', artists: ['Being a DIK', 'Tremolo'], file: 'Being a DIK Episode 9 - Dancing with Sage!┃JAM Studio - Best of Me.mp3' },
-    { name: 'We cant slow down', artists: ['Being a DIK', 'Tremolo'], file: 'Being a DIK Episode 6 - Boys night!┃Origami Pigeon - We cant slow down.mp3' },
-    { name: 'Sit on the crown', artists: ['Being a DIK', 'Tremolo'], file: 'Being a DIK Episode 8 - THE DIKs ARE BACK┃JAM Studio - Sit On The Crown.mp3' },
-    { name: 'So easy', artists: ['Being a DIK', 'Tremolo'], file: 'Being a DIK Episode 8 - Special class!┃Tangerine - So Easy.mp3' },
+    { name: 'Plasma', artists: ['Dr Gabba'], file: 'DR. GABBA - Plasma.mp3' },
+    { name: 'Black Sheep', artists: ['Black Sheep', 'Bire Larson'], file: 'Metric - Black Sheep (Brie Larson Vocal Version) ft. Brie Larson.mp3' },
+    { name: 'Leady Hear Me Tonight', artists: ['Modjo'], file: 'Modjo-- Lady Hear Me Tonight.mp3' },
+    { name: 'Lose My Mind', artists: ['Don Toliver', 'Doja Cat'], file: 'Don Toliver - Lose My Mind (feat. Doja Cat) [From F1® The Movie].mp3' },
+    { name: 'Superstar', artists: ['Lupe Fiasco'], file: 'Lupe Fiasco - Superstar (feat. Matthew Santos).mp3' },
   ];
   const slug = (t) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   const coverOf = (s) => s.cover || 'covers/' + slug(s.name) + '.webp';
