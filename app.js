@@ -35,12 +35,35 @@
     else document.title = savedTitle;
   });
 
-  /* ---------- 5. Cursor personalizado (delegado: sigue funcionando tras cada cambio de página) ---------- */
+  /* ---------- 5. Cursor personalizado ---------- */
+  // El estado depende de lo que hay bajo el mouse en cada mousemove (no de mouseover/mouseout, que no se
+  // disparan cuando el elemento desaparece al cambiar de página). Durante una transición se bloquea.
   const cursor = $('.custom-cursor'), cursorText = $('.cursor-text');
   const canCursor = matchMedia('(hover: hover) and (min-width: 992px)');
+  const cursorCtl = { lock() {}, unlock() {} };
   if (cursor) {
-    let mx = 0, my = 0, cx = 0, cy = 0, hover = false;
-    addEventListener('mousemove', (e) => { mx = e.clientX; my = e.clientY; });
+    let mx = 0, my = 0, cx = 0, cy = 0, hover = false, busy = false, muted = null;
+    const show = (el) => {
+      hover = true;
+      if (cursorText && cursorText.textContent !== el.dataset.cursor) cursorText.textContent = el.dataset.cursor;
+      cursor.classList.add('is-visible');
+    };
+    const hide = () => { hover = false; cursor.classList.remove('is-visible'); };
+    addEventListener('mousemove', (e) => {
+      mx = e.clientX; my = e.clientY;
+      const el = canCursor.matches && !busy ? e.target.closest('[data-cursor]') : null;
+      if (!el) { muted = null; hide(); }
+      else if (el === muted) hide();   // tras un clic, no reaparece sobre el mismo elemento
+      else show(el);
+    });
+    document.addEventListener('click', (e) => {
+      const el = e.target.closest('[data-cursor]');
+      if (el) { muted = el; hide(); }
+    });
+    document.documentElement.addEventListener('mouseleave', hide);
+    addEventListener('blur', hide);
+    cursorCtl.lock = () => { busy = true; hide(); };
+    cursorCtl.unlock = () => { busy = false; };
     const loop = () => {
       cx += (mx - cx) * 0.1; cy += (my - cy) * 0.1;
       const off = 20, w = cursor.offsetWidth;
@@ -49,19 +72,6 @@
       requestAnimationFrame(loop);
     };
     loop();
-    document.addEventListener('mouseover', (e) => {
-      const el = canCursor.matches && e.target.closest('[data-cursor]');
-      if (!el) return;
-      hover = true;
-      if (cursorText) cursorText.textContent = el.dataset.cursor;
-      cursor.classList.add('is-visible');
-    });
-    const hide = (e) => {
-      if (!e.target.closest('[data-cursor]')) return;
-      hover = false; cursor.classList.remove('is-visible');
-    };
-    document.addEventListener('mouseout', hide);
-    document.addEventListener('click', hide);
   }
 
   /* ---------- 7. Reproductor: el audio vive en el shell (no se corta al cambiar de página) ---------- */
@@ -196,7 +206,10 @@
   const fade = {
     name: 'fade',
     leave: ({ current }) => gsap.to(current.container, { opacity: 0, y: dy(), duration: 0.5, ease: 'power1.inOut' }),
-    enter: ({ next }) => {
+    enter: ({ current, next }) => {
+      // Barba mantiene el contenedor anterior en el DOM durante enter: si ocupa espacio, el nuevo
+      // se anima fuera de pantalla (debajo) y parece que aparece de golpe.
+      if (current && current.container) current.container.style.display = 'none';
       toTop();
       return gsap.fromTo(next.container, { opacity: 0, y: dy() },
         { opacity: 1, y: 0, duration: 0.5, ease: 'power1.inOut', clearProps: 'opacity,transform' });
@@ -208,6 +221,8 @@
       prevent: ({ el }) => (el.getAttribute('href') || '').startsWith('#'),
       transitions: [fade],
     });
+    barba.hooks.before(() => cursorCtl.lock());
+    barba.hooks.after(() => cursorCtl.unlock());
     barba.hooks.afterLeave(dropVideos);
     barba.hooks.after((data) => initPage(data.next.container));
   }
