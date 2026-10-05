@@ -80,7 +80,7 @@
      file = nombre exacto del archivo (con espacios, sin %20). La portada se busca sola en covers/<nombre-en-minusculas-con-guiones>.webp */
   const playlist = [
     { name: 'Plasma', artists: ['Dr Gabba'], file: 'DR. GABBA - Plasma.mp3' },
-    { name: 'Black Sheep', artists: ['Black Sheep', 'Bire Larson'], file: 'Metric - Black Sheep (Brie Larson Vocal Version) ft. Brie Larson.mp3' },
+    { name: 'Black Sheep', artists: ['Metric', 'Brie Larson'], file: 'Metric - Black Sheep (Brie Larson Vocal Version) ft. Brie Larson.mp3' },
     { name: 'Leady Hear Me Tonight', artists: ['Modjo'], file: 'Modjo-- Lady Hear Me Tonight.mp3' },
     { name: 'Lose My Mind', artists: ['Don Toliver', 'Doja Cat'], file: 'Don Toliver - Lose My Mind (feat. Doja Cat) [From F1® The Movie].mp3' },
     { name: 'Superstar', artists: ['Lupe Fiasco'], file: 'Lupe Fiasco - Superstar (feat. Matthew Santos).mp3' },
