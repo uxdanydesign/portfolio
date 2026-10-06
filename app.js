@@ -82,6 +82,7 @@
     { name: 'Black Sheep - Brie Larson (Vocal Version)', artists: ['Metric', 'Brie Larson'], file: 'Metric - Black Sheep (Brie Larson Vocal Version).mp3' },
     { name: 'Moonlit', artists: ['VØJ'], file: 'VØJ - Moonlit.mp3' },
     { name: 'Leady Hear Me Tonight', artists: ['Modjo'], file: 'Modjo-- Lady Hear Me Tonight.mp3' },
+    { name: 'Calm Night', artists: ['Narvent'], file: 'Narvent - Calm Night.mp3' },
     { name: 'Lose My Mind', artists: ['Don Toliver', 'Doja Cat'], file: 'Don Toliver - Lose My Mind (feat. Doja Cat) [From F1® The Movie].mp3' },
     { name: 'Cinematic Youth', artists: ['peach tinted'], file: 'peach tinted - Cinematic Youth.mp3' },
     { name: 'Si Tú No Estás Aquí', artists: ['Deorro'], file: 'Deorro - Si Tú No Estás Aquí (feat. LÚA).mp3' },
