@@ -79,6 +79,7 @@
   /* Para agregar una canción: sube el mp3 al repo 'songs' y agrega una línea aquí.
      file = nombre exacto del archivo (con espacios, sin %20). La portada se busca sola en covers/<nombre-en-minusculas-con-guiones>.webp */
   const playlist = [
+    { name: 'Black Sheep - Brie Larson (Vocal Version)', artists: ['Metric', 'Brie Larson'], file: 'Metric - Black Sheep (Brie Larson Vocal Version).mp3' },
     { name: 'Moonlit', artists: ['VØJ'], file: 'VØJ - Moonlit.mp3' },
     { name: 'Leady Hear Me Tonight', artists: ['Modjo'], file: 'Modjo-- Lady Hear Me Tonight.mp3' },
     { name: 'Lose My Mind', artists: ['Don Toliver', 'Doja Cat'], file: 'Don Toliver - Lose My Mind (feat. Doja Cat) [From F1® The Movie].mp3' },
