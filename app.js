@@ -79,13 +79,11 @@
   /* Para agregar una canción: sube el mp3 al repo 'songs' y agrega una línea aquí.
      file = nombre exacto del archivo (con espacios, sin %20). La portada se busca sola en covers/<nombre-en-minusculas-con-guiones>.webp */
   const playlist = [
-    { name: 'Black Sheep - Brie Larson (Vocal Version)', artists: ['Metric', 'Brie Larson'], file: 'Metric - Black Sheep (Brie Larson Vocal Version).mp3' },
-    { name: 'Moonlit', artists: ['VØJ'], file: 'VØJ - Moonlit.mp3' },
-    { name: 'Lady Hear Me Tonight', artists: ['Modjo'], file: 'Modjo-- Lady Hear Me Tonight.mp3' },
-    { name: 'Calm Night', artists: ['Narvent'], file: 'Narvent - Calm Night.mp3' },
-    { name: 'Lose My Mind', artists: ['Don Toliver', 'Doja Cat'], file: 'Don Toliver - Lose My Mind (feat. Doja Cat) [From F1® The Movie].mp3' },
-    { name: 'Cinematic Youth', artists: ['peach tinted'], file: 'peach tinted - Cinematic Youth.mp3' },
-    { name: 'Si Tú No Estás Aquí', artists: ['Deorro'], file: 'Deorro - Si Tú No Estás Aquí (feat. LÚA).mp3' },
+    { name: 'Legacy', artists: ['Eminem'], file: 'Eminem - Legacy.mp3' },
+    { name: 'My Way', artists: ['Limp Bizkit'], file: 'Limp Bizkit - My Way.mp3' },
+    { name: 'Invincible', artists: ['mgk'], file: 'mgk - Invincible.mp3' },
+    { name: 'Written in the Stars', artists: ['Tinie Tempah'], file: 'Tinie Tempah - Written in the Stars (feat. Eric Turner).mp3' },
+    { name: 'Rocketeer', artists: ['Far East Movement'], file: 'Far East Movement - Rocketeer.mp3' },
   ];
   const slug = (t) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   const coverOf = (s) => s.cover || 'covers/' + slug(s.name) + '.webp';
