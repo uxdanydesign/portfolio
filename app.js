@@ -82,7 +82,7 @@
     { name: 'Dale Otra Vez', artists: ['DIPIENS'], file: 'DIPIENS - Dale Otra Vez.mp3' },
     { name: 'Ma stasera', artists: ['Marco Mengoni'], file: 'Marco Mengoni - Ma stasera.mp3' },
     { name: 'Bitch Lasagna', artists: ['Pewdiepie'], file: 'Dylan Locke - Bitch Lasagna (Remix).mp3' },
-    { name: 'Its time (feat. Bruce Buffer)', artists: ['Steve Aoki'], file: 'Steve Aoki - Its Time (feat. Bruce Buffer).mp3' },
+    { name: 'MONTAGEM TOMADA', artists: ['MXZI'], file: 'MXZI - MONTAGEM TOMADA (Slowed).mp3' },
     { name: 'Wenn ich will', artists: ['CÉLINE'], file: 'CÉLINE - Wenn ich will.mp3' },
   ];
   const slug = (t) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
