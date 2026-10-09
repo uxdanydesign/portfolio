@@ -79,11 +79,11 @@
   /* Para agregar una canción: sube el mp3 al repo 'songs' y agrega una línea aquí.
      file = nombre exacto del archivo (con espacios, sin %20). La portada se busca sola en covers/<nombre-en-minusculas-con-guiones>.webp */
   const playlist = [
-    { name: 'Legacy', artists: ['Eminem'], file: 'Eminem - Legacy.mp3' },
-    { name: 'My Way', artists: ['Limp Bizkit'], file: 'Limp Bizkit - My Way.mp3' },
-    { name: 'Invincible', artists: ['mgk'], file: 'mgk - Invincible.mp3' },
-    { name: 'Written in the Stars', artists: ['Tinie Tempah'], file: 'Tinie Tempah - Written in the Stars (feat. Eric Turner).mp3' },
-    { name: 'Rocketeer', artists: ['Far East Movement'], file: 'Far East Movement - Rocketeer.mp3' },
+    { name: 'Dale Otra Vez', artists: ['DIPIENS'], file: 'DIPIENS - Dale Otra Vez.mp3' },
+    { name: 'Ma stasera', artists: ['Marco Mengoni'], file: 'Marco Mengoni - Ma stasera.mp3' },
+    { name: 'Bitch Lasagna', artists: ['Pewdiepie'], file: 'Dylan Locke - Bitch Lasagna (Remix).mp3' },
+    { name: 'Its time (feat. Bruce Buffer)', artists: ['Steve Aoki'], file: 'Steve Aoki - Its Time (feat. Bruce Buffer).mp3' },
+    { name: 'Wenn ich will', artists: ['CÉLINE'], file: 'CÉLINE - Wenn ich will.mp3' },
   ];
   const slug = (t) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   const coverOf = (s) => s.cover || 'covers/' + slug(s.name) + '.webp';
