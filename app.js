@@ -83,6 +83,7 @@
     { name: 'Ma stasera', artists: ['Marco Mengoni'], file: 'Marco Mengoni - Ma stasera.mp3' },
     { name: 'Bitch Lasagna', artists: ['Pewdiepie'], file: 'Dylan Locke - Bitch Lasagna (Remix).mp3' },
     { name: 'MONTAGEM TOMADA', artists: ['MXZI'], file: 'MXZI - MONTAGEM TOMADA (Slowed).mp3' },
+    { name: 'Derrière le brouillard', artists: ['Grand Corps Malade', 'Louane'], file: 'Grand Corps Malade - Derrière le brouillard.mp3' },
     { name: 'Wenn ich will', artists: ['CÉLINE'], file: 'CÉLINE - Wenn ich will.mp3' },
   ];
   const slug = (t) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
