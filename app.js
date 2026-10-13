@@ -83,9 +83,7 @@
     { name: 'matrix', artists: ['chrmbchrmb'], file: 'chrmbchrmb - matrix (bl studio loop).mp3' },
     { name: 'WORTH NOTHING', artists: ['Twisted'], file: 'Twisted - WORTH NOTHING (Fast & Furious_ Drift Tape_Phonk Vol 1).mp3' },
     { name: 'WARNING (Speed Up)', artists: ['MC Orsen'], file: 'MC Orsen - WARNING (Sped Up).mp3' },
-    { name: 'AVOID ME', artists: ['Kute'], file: 'Kute - AVOID ME.mp3' },
     { name: 'SPIT IN MY FACE!', artists: ['ThxSoMch'], file: 'ThxSoMch - SPIT IN MY FACE!.mp3' },
-    { name: 'Why Not', artists: ['Ghostface Playa'], file: 'Ghostface Playa - Why Not.mp3' },
   ];
   const slug = (t) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   const coverOf = (s) => s.cover || 'covers/' + slug(s.name) + '.webp';
