@@ -79,7 +79,7 @@
   /* Para agregar una canción: sube el mp3 al repo 'songs' y agrega una línea aquí.
      file = nombre exacto del archivo (con espacios, sin %20). La portada se busca sola en covers/<nombre-en-minusculas-con-guiones>.webp */
   const playlist = [
-    { name: 'Flower In A Hurricane', artists: ['Justice', 'Tame Imapala', 'SZA'], file: 'Justice - Flower In A Hurricane.mp3' },
+    { name: 'Flower In A Hurricane', artists: ['Justice', 'Tame Imapala', 'SZA'], file: 'Justice - Flower In A Hurricane (feat. Tame Impala, SZA, King Gizzard & the Lizard Wizard) [from GTAVI].mp3' },
     { name: 'Problems', artists: ['Don Diablo'], file: 'Don Diablo - Problems.mp3' },
     { name: 'Reload (Radio Edit)', artists: ['Sebastian Ingrosso'], file: 'Sebastian Ingrosso - Reload (Radio Edit).mp3' },
     { name: 'matrix', artists: ['chrmbchrmb'], file: 'chrmbchrmb - matrix (bl studio loop).mp3' },
