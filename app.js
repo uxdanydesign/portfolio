@@ -82,10 +82,7 @@
     { name: 'Pray To God', artists: ['Calvin Harris'], file: 'Calvin Harris - Pray to God (feat. HAIM).mp3' },
     { name: 'Problems', artists: ['Don Diablo'], file: 'Don Diablo - Problems.mp3' },
     { name: 'Reload (Radio Edit)', artists: ['Sebastian Ingrosso'], file: 'Sebastian Ingrosso - Reload (Radio Edit).mp3' },
-    { name: 'matrix', artists: ['chrmbchrmb'], file: 'chrmbchrmb - matrix (bl studio loop).mp3' },
-    { name: 'WORTH NOTHING', artists: ['Twisted'], file: 'Twisted - WORTH NOTHING (Fast & Furious_ Drift Tape_Phonk Vol 1).mp3' },
     { name: 'Drop It', artists: ['Tujamo'], file: 'Tujamo - Drop It.mp3' },
-    { name: 'Calm Night', artists: ['Narvent'], file: 'Narvent - Calm Night.mp3' },
   ];
   const slug = (t) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   const coverOf = (s) => s.cover || 'covers/' + slug(s.name) + '.webp';
