@@ -9,6 +9,7 @@
   const killBadge = () => $$('.w-webflow-badge, a[href*="utm_campaign=brandjs"]').forEach((e) => e.remove());
   killBadge();
   new MutationObserver(killBadge).observe(document.body, { childList: true });
+  
 
   /* ---------- 2. Scroll suave ---------- */
   const lenis = window.Lenis
