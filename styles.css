@@ -3326,6 +3326,11 @@ p {
   width: 100%;
 }
 
+.imgcasestudy_shadowmusic {
+  border-radius: 1em;
+  width: 17em;
+}
+
 .casestudy-imgshowcase {
   background-color: var(--_portfolio---bg--surface-300);
   border-radius: 1em;
