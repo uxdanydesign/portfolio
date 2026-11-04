@@ -20,11 +20,22 @@
   }
   const toTop = () => { window.scrollTo(0, 0); lenis && lenis.scrollTo(0, { immediate: true, force: true }); };
 
-  /* ---------- 3. Reloj en vivo ---------- */
+  /* ---------- 3. Reloj en vivo (hora de CDMX, sin AM/PM, igual que el texto original "1:38:32") ---------- */
   const fmt = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'America/Mexico_City', hour: 'numeric', minute: '2-digit', second: '2-digit',
+    timeZone: 'America/Mexico_City', hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true,
   });
-  const tick = () => $$('[data-clock]').forEach((el) => { el.textContent = fmt.format(new Date()); });
+  const timeStr = () => fmt.format(new Date()).replace(/\s?[AP]M$/i, '');
+  // Busca [data-clock]. Si la página no lo trae, se lo pone al segundo texto del primer bloque del footer
+  // (la hora), así funciona aunque entres directo a un case study.
+  const clockEls = () => {
+    let els = $$('[data-clock]');
+    if (!els.length) {
+      const el = $('.footer-contentdiv:not(.rightleft) .text-body:nth-child(2)');
+      if (el) { el.setAttribute('data-clock', ''); els = [el]; }
+    }
+    return els;
+  };
+  const tick = () => { const t = timeStr(); clockEls().forEach((el) => { if (el.textContent !== t) el.textContent = t; }); };
   tick();
   setInterval(tick, 1000);
 
