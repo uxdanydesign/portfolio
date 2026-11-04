@@ -4022,7 +4022,7 @@ html { height: auto !important; }
 
 /* Reproductor: fijo y persistente en todas las páginas (max 400px; en tablet/celular es fill) */
 .player {
-  position: fixed; left: 50%; bottom: 2em; z-index: 100; box-sizing: border-box; transform: translateX(-50%);
+  position: fixed; left: 50%; bottom: 1em; z-index: 100; box-sizing: border-box; transform: translateX(-50%);
   display: flex; align-items: center; grid-column-gap: max(.5em, 8px); grid-row-gap: max(.5em, 8px);
   width: calc(100% - 5.5em); max-width: max(25em, 400px); padding: max(.25em, 4px); border-radius: 100px;
   color: #9d2114; background-color: rgba(255,255,255,.5);
