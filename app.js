@@ -90,10 +90,10 @@
   /* Para agregar una canción: sube el mp3 al repo 'songs' y agrega una línea aquí.
      file = nombre exacto del archivo (con espacios, sin %20). La portada se busca sola en covers/<nombre-en-minusculas-con-guiones>.webp */
   const playlist = [
+    { name: 'Project X Summer Take Over Mix 2026🔥', artists: ['DJ HunnedGrand'], file: 'Project X Summer Take Over Mix 2026🔥.mp3' },
     { name: 'Pray to God', artists: ['Calvin Harris'], file: 'Calvin Harris - Pray to God (feat. HAIM).mp3' },
     { name: 'Ma stasera', artists: ['Marco Mengoni'], file: 'Marco Mengoni - Ma stasera.mp3' },
     { name: 'la pluie', artists: ['Louane'], file: 'Louane - la pluie.mp3' },
-    { name: 'Project X Summer Take Over Mix 2026🔥', artists: ['DJ HunnedGrand'], file: 'Project X Summer Take Over Mix 2026🔥.mp3' },
     { name: 'Wenn ich will', artists: ['CÉLINE'], file: 'CÉLINE - Wenn ich will.mp3' },
   ];
   const slug = (t) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -175,6 +175,113 @@
   audio.addEventListener('pause', () => renderPlayers());
   audio.addEventListener('ended', next);
   setInterval(() => { localStorage.setItem('music_time', audio.currentTime); localStorage.setItem('music_index', idx); }, 500);
+
+  /* ---------- 7b. Timeline del reproductor ----------
+     Línea de progreso por defecto + slider (hover en desktop, tap en móvil). El markup se inyecta aquí,
+     así que no hay que tocar el HTML de las páginas. Todo el movimiento va con transform (sin layout)
+     y el loop de rAF solo corre mientras suena la canción. */
+  (() => {
+    const player = $('.player'), info = player && $('.player__info', player);
+    if (!player || !info) return;
+    info.insertAdjacentHTML('beforeend',
+      '<div class="player__line" aria-hidden="true"><div class="player__line-fill"></div></div>' +
+      '<div class="player__seek">' +
+        '<div class="player__times" aria-hidden="true"><span data-time="cur">0:00</span><span data-time="dur">0:00</span></div>' +
+        '<div class="player__slider" role="slider" tabindex="0" aria-label="Song timeline" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0">' +
+          '<div class="player__track"><div class="player__fill"></div></div>' +
+          '<div class="player__thumb"></div>' +
+        '</div>' +
+      '</div>');
+    const lineFill = $('.player__line-fill', info), curEl = $('[data-time="cur"]', info), durEl = $('[data-time="dur"]', info);
+    const slider = $('.player__slider', info), fill = $('.player__fill', info), thumb = $('.player__thumb', info);
+
+    const fmtT = (s) => { s = Math.max(0, Math.floor(s) || 0); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+    const dur = () => (isFinite(audio.duration) && audio.duration > 0 ? audio.duration : 0);
+    const st = { hover: false, tap: false, focus: false, drag: false };
+    let W = 0, D = 0, raf = 0, shown = false, lastSec = -1, lastDur = -1, seekAt = 0, rectL = 0, rectW = 1, dragP = 0;
+
+    // Pinta línea + slider. El slider solo se actualiza cuando está visible.
+    const draw = () => {
+      const d = dur(), t = st.drag ? dragP * d : audio.currentTime;
+      const p = d ? Math.min(1, Math.max(0, t / d)) : 0;
+      lineFill.style.transform = 'translate3d(' + (p - 1) * 100 + '%,0,0)';
+      if (shown) {
+        const x = D / 2 + p * (W - D); // el círculo nunca se sale de la barra
+        fill.style.transform = 'translate3d(' + (x - W) + 'px,0,0)';
+        thumb.style.transform = 'translate3d(' + (x - D / 2) + 'px,0,0)';
+      }
+      const sec = Math.floor(t);
+      if (sec !== lastSec) { lastSec = sec; curEl.textContent = fmtT(t); slider.setAttribute('aria-valuenow', sec); }
+      if (d !== lastDur) { lastDur = d; durEl.textContent = fmtT(d); slider.setAttribute('aria-valuemax', Math.floor(d)); }
+    };
+    const measure = () => { W = slider.clientWidth; D = thumb.offsetWidth; draw(); };
+    const sync = () => {
+      const v = st.hover || st.tap || st.focus || st.drag;
+      if (v === shown) return;
+      shown = v; player.classList.toggle('is-seek', v);
+      if (v) { measure(); }
+    };
+    if ('ResizeObserver' in window) { const ro = new ResizeObserver(measure); ro.observe(slider); ro.observe(thumb); }
+    measure();
+
+    // Reproducción: rAF solo mientras suena; en pausa se redibuja con los eventos del audio
+    const loop = () => { draw(); raf = audio.paused ? 0 : requestAnimationFrame(loop); };
+    audio.addEventListener('play', () => { if (!raf) raf = requestAnimationFrame(loop); });
+    ['pause', 'seeked', 'durationchange', 'loadedmetadata', 'emptied', 'ended'].forEach((ev) => audio.addEventListener(ev, draw));
+
+    // Arrastrar: el círculo sigue al dedo/mouse al instante (usa dragP, no el audio) y el audio se mueve
+    // cada ~80ms mientras arrastras y de forma exacta al soltar
+    const ratio = (x) => Math.min(1, Math.max(0, (x - rectL - D / 2) / Math.max(1, rectW - D)));
+    const seek = (force) => {
+      const now = performance.now();
+      if (force || now - seekAt > 80) { seekAt = now; audio.currentTime = dragP * dur(); }
+    };
+    slider.addEventListener('pointerdown', (e) => {
+      if (!dur() || (e.pointerType === 'mouse' && e.button !== 0)) return;
+      const r = slider.getBoundingClientRect(); rectL = r.left; rectW = r.width;
+      st.drag = true; dragP = ratio(e.clientX);
+      slider.setPointerCapture(e.pointerId);
+      e.preventDefault();
+      seek(true); draw(); sync();
+    });
+    slider.addEventListener('pointermove', (e) => {
+      if (!st.drag) return;
+      dragP = ratio(e.clientX); seek(false); draw();
+    });
+    const endDrag = () => {
+      if (!st.drag) return;
+      seek(true); st.drag = false; draw(); sync();
+    };
+    slider.addEventListener('pointerup', endDrag);
+    slider.addEventListener('pointercancel', endDrag);
+
+    // Desktop: hover sobre todo el componente
+    player.addEventListener('pointerenter', (e) => { if (e.pointerType !== 'touch') { st.hover = true; sync(); } });
+    player.addEventListener('pointerleave', (e) => { if (e.pointerType !== 'touch') { st.hover = false; sync(); } });
+    // Móvil: tap en el componente (menos play/next) lo activa; tap o scroll fuera lo desactiva
+    player.addEventListener('pointerup', (e) => {
+      if (e.pointerType === 'touch' && !e.target.closest('[data-player]')) { st.tap = true; sync(); }
+    });
+    document.addEventListener('pointerdown', (e) => {
+      if (st.tap && !player.contains(e.target)) { st.tap = false; sync(); }
+    }, { passive: true });
+    addEventListener('scroll', () => { if (st.tap && !st.drag) { st.tap = false; sync(); } }, { passive: true });
+
+    // Teclado
+    slider.addEventListener('focus', () => { st.focus = slider.matches(':focus-visible'); sync(); });
+    slider.addEventListener('blur', () => { st.focus = false; sync(); });
+    slider.addEventListener('keydown', (e) => {
+      const d = dur(); if (!d) return;
+      const step = { ArrowLeft: -5, ArrowDown: -5, ArrowRight: 5, ArrowUp: 5 }[e.key];
+      if (step !== undefined) audio.currentTime = Math.min(d, Math.max(0, audio.currentTime + step));
+      else if (e.key === 'Home') audio.currentTime = 0;
+      else if (e.key === 'End') audio.currentTime = Math.max(0, d - 0.5);
+      else return;
+      e.preventDefault(); draw();
+    });
+
+    draw();
+  })();
 
   const remeasure = () => $$('.marquee').forEach((m) => m.dataset.text && marquee(m, m.dataset.text));
   let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(remeasure, 150); });
