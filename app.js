@@ -79,7 +79,7 @@
   /* Para agregar una canción: sube el mp3 al repo 'songs' y agrega una línea aquí.
      file = nombre exacto del archivo (con espacios, sin %20). La portada se busca sola en covers/<nombre-en-minusculas-con-guiones>.webp */
   const playlist = [
-    { name: 'Dale Otra Vez', artists: ['DIPIENS'], file: 'DIPIENS - Dale Otra Vez.mp3' },
+    { name: 'Pray to God', artists: ['Calvin Harris'], file: 'Calvin Harris - Pray to God (feat. HAIM).mp3' },
     { name: 'Ma stasera', artists: ['Marco Mengoni'], file: 'Marco Mengoni - Ma stasera.mp3' },
     { name: 'la pluie', artists: ['Louane'], file: 'Louane - la pluie.mp3' },
     { name: 'Toda Gloria', artists: ['Niko Eme'], file: 'Niko-Eme-feat-Tommy-Royale-Toda-Gloria-(CeeNaija.com).mp3' },
