@@ -3474,7 +3474,14 @@ p {
   justify-content: flex-start;
   align-items: flex-start;
   display: flex;
-  position: sticky;
+}
+
+/* Sticky solo de 768px hacia arriba (en 767 o menos el contenido va en una columna) */
+@media screen and (min-width: 768px) {
+  .casestudy_titlediv {
+    position: sticky;
+    top: 4.5em;
+  }
 }
 
 .img_casestudy_hero {
