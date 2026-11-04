@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html data-wf-page="6993f9e7682d716bb49ed11e" data-wf-site="6993f9e4682d716bb49ed0ed">
+<head>
+    <meta charset="utf-8" />
+    <link href="https://cdn.prod.website-files.com" rel="preconnect" crossorigin="anonymous" />
+    <title>Daniel - UX UI Designer</title>
+    <meta
+        content="I&#x27;m Daniel. A UX UI Designer with experience designing for app and web products. At the moment, I‘m exploring video game design to understand the industry and gain more skills."
+        name="description" />
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <meta content="Webflow" name="generator" />
+    <link
+        href="styles.css"
+        rel="stylesheet" type="text/css"/>
+    <link
+        href="https://cdn.prod.website-files.com/6993f9e4682d716bb49ed0ed/69a41b274693e8967e4f3b45_Anya%20Icon%2032x32.png"
+        rel="shortcut icon" type="image/x-icon" />
+    <link href="https://cdn.prod.website-files.com/6993f9e4682d716bb49ed0ed/69a41b10c65e0c416bfd1e8b_Anya%20Icon.png"
+        rel="apple-touch-icon" />
+    <style>
+        html {
+            scrollbar-gutter: stable !important;
+        }
+
+        /* Clase de bloqueo absoluto */
+        body.is-loading {
+            overflow: hidden !important;
+            height: 100vh !important;
+            width: 100% !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            pointer-events: none !important;
+            touch-action: none !important;
+        }
+
+        /* Aseguramos que el loader esté por encima de todo y sea visible */
+        .loader-wrapper {
+            position: fixed;
+            inset: 0;
+            z-index: 999999;
+            background-color: #0F0F0F;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loader-wrapper {
+            background-color: #fafafa;
+            opacity: 1;
+            visibility: visible;
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .loader-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loader-text-static {
+            position: relative;
+            overflow: hidden;
+            display: block;
+            padding-bottom: 0.05em;
+        }
+
+        .loader-title {
+            font-family: 'SF Pro Display', sans-serif;
+            font-weight: 500;
+            font-size: 6em;
+            color: black;
+            margin: 0;
+            transform: translateY(115%);
+            will-change: transform;
+        }
+
+        .loader-gif-outer {
+            width: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loader-gif-inner {
+            width: 10em;
+            margin: 0 0.8em;
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        .loader-gif {
+            width: 100%;
+            height: auto;
+            border-radius: 1.5em;
+            display: block;
+        }
+
+        /* Responsive */
+        @media screen and (max-width: 991px) {
+            .loader-title {
+                font-size: 4.5em;
+            }
+
+            .loader-gif-inner {
+                width: 8em;
+            }
+        }
+
+        @media screen and (max-width: 767px) {
+            .loader-title {
+                font-size: 3.5em;
+            }
+
+            .loader-gif-inner {
+                width: 6em;
+            }
+        }
+
+        @media screen and (max-width: 479px) {
+            .loader-title {
+                font-size: 2.8em;
+            }
+
+            .loader-gif-inner {
+                width: 5em;
+            }
+        }
+    </style>
+</head>
+
+
+<body class="body">
+    <div class="custom-cursor">
+        <div class="cursor-text">Cursor text</div>
+    </div>
+    <div class="code-embed w-embed">
+        <style>
+            /* ------------------------- Scaling System by Osmo [https://osmo.supply/] -------------------------  */
+
+            /* Desktop */
+            :root {
+                --size-unit: 14;
+                /* body font-size in design - no px */
+                --size-container-ideal: 1440;
+                /* screen-size in design - no px */
+                --size-container-min: 992px;
+                --size-container-max: 1920px;
+                --size-container: clamp(var(--size-container-min), 100vw, var(--size-container-max));
+                --size-font: calc(var(--size-container) / (var(--size-container-ideal) / var(--size-unit)));
+            }
+
+            /* Tablet */
+            @media screen and (max-width: 991px) {
+                :root {
+                    --size-container-ideal: 834;
+                    /* screen-size in design - no px */
+                    --size-container-min: 768px;
+                    --size-container-max: 991px;
+                }
+            }
+
+            /* Mobile Landscape */
+            @media screen and (max-width: 767px) {
+                :root {
+                    --size-container-ideal: 402;
+                    /* screen-size in design - no px */
+                    --size-container-min: 480px;
+                    --size-container-max: 767px;
+                }
+            }
+
+            /* Mobile Portrait */
+            @media screen and (max-width: 479px) {
+                :root {
+                    --size-container-ideal: 390;
+                    /* screen-size in design - no px */
+                    --size-container-min: 320px;
+                    --size-container-max: 479px;
+                }
+            }
+
+            body {
+                font-size: var(--size-font);
+            }
+
+            .container {
+                max-width: var(--size-container);
+            }
+        </style>
+
+        <div class="loader-wrapper">
+            <div class="loader-content">
+                <div class="loader-text-wrap">
+                    <div class="loader-text-static">
+                        <h1 class="loader-title">Hi,</h1>
+                    </div>
+                </div>
+
+                <div class="loader-gif-outer">
+                    <div class="loader-gif-inner">
+                        <img src="https://cdn.prod.website-files.com/6993f9e4682d716bb49ed0ed/69a57449fda135434f0f5909_forallmankind-hibob.gif"
+                            class="loader-gif" alt="Hi Bob">
+                    </div>
+                </div>
+
+                <div class="loader-text-wrap">
+                    <div class="loader-text-static">
+                        <h1 class="loader-title">Bob!</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <section class="content">
+        <div class="w-layout-blockcontainer container w-container">
+            <div class="container-wrap">
+                <nav class="nav"><a href="/" aria-current="page" class="text_nav w--current">Daniel Lopez</a><a
+                        href="mailto:uxdanydesign@gmail.com?subject=Hi%2C%20Daniel" class="text_nav">Contact</a></nav>
+                <div data-barba="wrapper" class="barba-wrapper"><main data-barba="container" data-barba-namespace="home" class="page-main">
+                <div class="case-study__home-wrap">
+                    <div class="case-study__home__card-wrap"><a data-cursor="Popcorns 🍿"
+                            id="w-node-_06878bb3-9c6a-9d8c-86c9-8fc713aed5f0-b49ed11e" href="/cinepolis"
+                            class="case-study__home__card cinepolis w-inline-block">
+                            <div class="case-study__home__tag__div">
+                                <div class="case-study__home__tag">
+                                    <h2 class="h2_casestudy">Cinepolis</h2>
+                                </div>
+                                <div class="case-study__home__tag">
+                                    <h2 class="h2_casestudy">Product Designer</h2>
+                                </div>
+                            </div><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 84 100" fill="black"
+                                class="svg cinepolis">
+                                <path
+                                    d="M24.8715 44.858L0 39.716C2.34637 15.8758 43.1732 -20.1182 84 14.0061L64.2905 30.3669C56.4693 24.4458 33.7877 19.148 24.8715 44.858Z"
+                                    fill="currentColor" class="path-3"></path>
+                                <path
+                                    d="M24.8715 55.142L0 60.284C2.34637 84.1242 43.1732 120.118 84 85.9939L64.2905 69.6331C56.4693 75.5541 33.7877 80.852 24.8715 55.142Z"
+                                    fill="currentColor" class="path-3"></path>
+                            </svg>
+                        </a><a data-cursor="I miss the IPod Touch :("
+                            id="w-node-_5d77c944-39ad-96e4-c01b-06ebc7af26ea-b49ed11e" href="/shadow-music-app"
+                            class="case-study__home__card music_app w-inline-block">
+                            <div class="case-study__home__tag__div">
+                                <div class="case-study__home__tag">
+                                    <h2 class="h2_casestudy">Music App</h2>
+                                </div>
+                                <div class="case-study__home__tag">
+                                    <h2 class="h2_casestudy">Design Engineer</h2>
+                                </div>
+                            </div><img
+                                src="https://cdn.prod.website-files.com/6993f9e4682d716bb49ed0ed/6ae535a363ee0a77880abcb0_Shadow%20Music%20Cover%20Home.avif"
+                                loading="lazy" alt="A Mockup for the Music App Case Study Project"
+                                class="home_casestudy_mobileimg" />
+                        </a><a data-cursor="The future... someday"
+                            id="w-node-b2454596-70fe-f5eb-a222-94d057fc6571-b49ed11e" href="/tennis-spatial-app"
+                            class="case-study__home__card ar_vr_tennisapp w-inline-block">
+                            <div class="code-embed-2 w-embed">
+                                <div class="video-container-custom">
+                                    <video autoplay loop muted playsinline class="video-player-bg">
+                                        <source
+                                            src="https://r2.vidzflow.com/source/d57b91e6-8e95-40e0-932f-7bee50085c52.mp4"
+                                            type="video/mp4">
+                                        <source src="https://r2.vidzflow.com/v/4LGptmfEot_1080p_1772296714.mp4"
+                                            type="video/mp4">
+                                        <source src="https://r2.vidzflow.com/v/4LGptmfEot_720p_1772296714.mp4"
+                                            type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                </div>
+
+                                <style>
+                                    .video-container-custom {
+                                        width: 100%;
+                                        height: 100%;
+                                        position: relative;
+                                        overflow: hidden;
+                                        display: flex;
+                                        justify-content: center;
+                                        align-items: center;
+                                        background-color: #000;
+                                    }
+
+                                    .video-player-bg {
+                                        width: 100%;
+                                        height: 100%;
+                                        object-fit: cover;
+                                        /* Mantiene el aspecto de fondo profesional */
+                                        display: block;
+                                    }
+                                </style>
+                            </div>
+                            <div class="case-study__home__tag__div">
+                                <div class="case-study__home__tag">
+                                    <h2 class="h2_casestudy">AR VR Tennis App</h2>
+                                </div>
+                                <div class="case-study__home__tag">
+                                    <h2 class="h2_casestudy">UX UI Designer</h2>
+                                </div>
+                            </div>
+                        </a><a data-cursor="Tie Break 🎾" id="w-node-_5f5704dc-437c-904c-32e2-5e7254499f04-b49ed11e"
+                            href="/tennis-app" class="case-study__home__card tennis_app w-inline-block">
+                            <div class="case-study__home__tag__div">
+                                <div class="case-study__home__tag">
+                                    <h2 class="h2_casestudy">Tennis App</h2>
+                                </div>
+                                <div class="case-study__home__tag">
+                                    <h2 class="h2_casestudy">UX UI Designer</h2>
+                                </div>
+                            </div><img
+                                src="https://cdn.prod.website-files.com/6993f9e4682d716bb49ed0ed/6ae8e1cc8ef70e9447c67feb_Tennis%20Cover%20Home.avif"
+                                loading="lazy" sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                                srcset="https://cdn.prod.website-files.com/6993f9e4682d716bb49ed0ed/6ae8e1cc8ef70e9447c67feb_Tennis%20Cover%20Home-p-500.avif 500w, https://cdn.prod.website-files.com/6993f9e4682d716bb49ed0ed/6ae8e1cc8ef70e9447c67feb_Tennis%20Cover%20Home-p-800.avif 800w, https://cdn.prod.website-files.com/6993f9e4682d716bb49ed0ed/6ae8e1cc8ef70e9447c67feb_Tennis%20Cover%20Home.avif 1242w"
+                                alt="" class="home_casestudy_mobileimg" />
+                        </a><a data-cursor="Learning about Game Design 🎮"
+                            id="w-node-_553348e6-5995-b5e6-5124-155a8aa00dac-b49ed11e" href="/gaming-ux"
+                            class="case-study__home__card forfun w-inline-block">
+                            <div class="case-study__home__tag__div">
+                                <div class="case-study__home__tag">
+                                    <h2 class="h2_casestudy">Gaming</h2>
+                                </div>
+                            </div><img
+                                src="https://cdn.prod.website-files.com/6993f9e4682d716bb49ed0ed/6ae535118fe444afed8e38f1_Party%20Animals%20BG.avif"
+                                loading="lazy" sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                                srcset="https://cdn.prod.website-files.com/6993f9e4682d716bb49ed0ed/6ae535118fe444afed8e38f1_Party%20Animals%20BG-p-500.avif 500w, https://cdn.prod.website-files.com/6993f9e4682d716bb49ed0ed/6ae535118fe444afed8e38f1_Party%20Animals%20BG-p-800.avif 800w, https://cdn.prod.website-files.com/6993f9e4682d716bb49ed0ed/6ae535118fe444afed8e38f1_Party%20Animals%20BG-p-1080.avif 1080w, https://cdn.prod.website-files.com/6993f9e4682d716bb49ed0ed/6ae535118fe444afed8e38f1_Party%20Animals%20BG-p-1600.avif 1600w, https://cdn.prod.website-files.com/6993f9e4682d716bb49ed0ed/6ae535118fe444afed8e38f1_Party%20Animals%20BG.avif 1920w"
+                                alt="" class="home_casestudy_fullwidthimg" />
+                        </a><a data-cursor="I losed my cat 💔"
+                            id="w-node-_3af9ec74-0901-3174-1ec5-812989d6539c-b49ed11e" href="/pet-finder-app"
+                            class="case-study__home__card petfinder w-inline-block">
+                            <div class="case-study__home__tag__div">
+                                <div class="case-study__home__tag">
+                                    <h2 class="h2_casestudy">PetFinder</h2>
+                                </div>
+                                <div class="case-study__home__tag">
+                                    <h2 class="h2_casestudy">UX UI Designer</h2>
+                                </div>
+                            </div><img
+                                src="https://cdn.prod.website-files.com/6993f9e4682d716bb49ed0ed/6ae53adf4364581d632e2f70_PetFinder%20Cover%20Home.png"
+                                loading="lazy" sizes="(max-width: 767px) 100vw, (max-width: 991px) 728px, 940px"
+                                srcset="https://cdn.prod.website-files.com/6993f9e4682d716bb49ed0ed/6ae53adf4364581d632e2f70_PetFinder%20Cover%20Home-p-500.png 500w, https://cdn.prod.website-files.com/6993f9e4682d716bb49ed0ed/6ae53adf4364581d632e2f70_PetFinder%20Cover%20Home-p-800.png 800w, https://cdn.prod.website-files.com/6993f9e4682d716bb49ed0ed/6ae53adf4364581d632e2f70_PetFinder%20Cover%20Home-p-1080.png 1080w, https://cdn.prod.website-files.com/6993f9e4682d716bb49ed0ed/6ae53adf4364581d632e2f70_PetFinder%20Cover%20Home.png 1242w"
+                                alt="" class="home_casestudy_mobileimg" />
+                        </a></div>
+                </div>
+                </main></div>
+                <footer class="footer">
+                    <div class="footer-contentdiv">
+                        <div class="text-body">León, Gto, México</div>
+                        <div class="text-body">1:38:32</div>
+                    </div>
+                    <div class="footer-contentdiv rightleft"><a
+                            href="mailto:uxdanydesign@gmail.com?subject=Hi%2C%20Daniel"
+                            class="link-mail">uxdanydesign@gmail.com</a>
+                        <div class="text-body">3:16 ✝️</div>
+                    </div>
+                </footer>
+                <div class="player" role="group" aria-label="Music player"><button class="player__cover" type="button" data-player="toggle" aria-label="Play"><img class="player__cover-img" alt="" width="46" height="46"><span class="player__veil"></span><svg class="player__icon is-play" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M17.8407 7.79382C19.6089 8.75542 19.6089 11.2446 17.8407 12.2062L7.16401 18.0121C5.44545 18.9467 3.3335 17.7303 3.3335 15.8059V4.19408C3.3335 2.26973 5.44545 1.05335 7.164 1.9879L17.8407 7.79382Z" fill="currentColor"/></svg><svg class="player__icon is-pause" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1.6665 5C1.6665 3.42865 1.6665 2.64298 2.15466 2.15483C2.64281 1.66667 3.42849 1.66667 4.99984 1.66667C6.57119 1.66667 7.35686 1.66667 7.84501 2.15483C8.33317 2.64298 8.33317 3.42865 8.33317 5V15C8.33317 16.5713 8.33317 17.357 7.84501 17.8452C7.35686 18.3333 6.57119 18.3333 4.99984 18.3333C3.42849 18.3333 2.64281 18.3333 2.15466 17.8452C1.6665 17.357 1.6665 16.5713 1.6665 15V5Z" fill="currentColor"/><path d="M11.6665 5C11.6665 3.42865 11.6665 2.64298 12.1547 2.15483C12.6428 1.66667 13.4285 1.66667 14.9998 1.66667C16.5712 1.66667 17.3568 1.66667 17.845 2.15483C18.3332 2.64298 18.3332 3.42865 18.3332 5V15C18.3332 16.5713 18.3332 17.357 17.845 17.8452C17.3568 18.3333 16.5712 18.3333 14.9998 18.3333C13.4285 18.3333 12.6428 18.3333 12.1547 17.8452C11.6665 17.357 11.6665 16.5713 11.6665 15V5Z" fill="currentColor"/></svg></button><div class="player__info"><div class="marquee marquee--title" data-marquee="title"><div class="marquee__track"></div></div><div class="marquee marquee--sub" data-marquee="artists"><div class="marquee__track"></div></div></div><button class="player__next" type="button" data-player="next" aria-label="Next song"><svg class="player__icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1.66699 14.6449V5.35543C1.66699 3.81595 3.00086 2.84285 4.08626 3.59048L9.16683 7.3072V5.93602C9.16683 4.58898 10.3895 3.73751 11.3845 4.39169L17.5657 8.45583C18.5894 9.12891 18.5894 10.8714 17.5657 11.5445L11.3845 15.6087C10.3895 16.2628 9.16683 15.4113 9.16683 14.0643V12.6932L4.08627 16.4098C3.00087 17.1575 1.66699 16.1844 1.66699 14.6449Z" fill="currentColor"/></svg></button></div>
+            </div>
+        </div>
+    </section>
+
+    
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
+
+    
+
+
+
+
+    
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const loader = document.querySelector('.loader-wrapper');
+            const mainContainer = document.querySelector('.container');
+            if (!loader) return;
+
+            const isHome = window.location.pathname === "/" || window.location.pathname === "/index.html" || window.location.pathname.endsWith('/');
+            const isRefresh = performance.getEntriesByType("navigation")[0].type === "reload";
+            const isFirstLoad = !sessionStorage.getItem('site-visited');
+
+            if (isHome && (isFirstLoad || isRefresh)) {
+                sessionStorage.setItem('site-visited', 'true');
+                runLoader();
+            } else {
+                loader.style.display = 'none';
+                if (mainContainer) mainContainer.classList.add('transition-active');
+            }
+
+            function runLoader() {
+                // 1. Forzamos scroll al inicio e inmediatamente bloqueamos
+                window.scrollTo(0, 0);
+                document.body.classList.add('is-loading');
+
+                const tl = gsap.timeline({
+                    onComplete: () => {
+                        // Al terminar la animación del stagger...
+                        gsap.to(loader, {
+                            opacity: 0,
+                            duration: 0.8,
+                            ease: "power2.inOut",
+                            onStart: () => {
+                                if (mainContainer) mainContainer.classList.add('transition-active');
+                            },
+                            onComplete: () => {
+                                loader.style.display = 'none';
+
+                                document.body.classList.remove('is-loading');
+                            }
+                        });
+                    }
+                });
+
+                // 1. Entrada Stagger "Elastic Expo"
+                tl.to(".loader-title", {
+                    y: "0%",
+                    delay: 0.3,
+                    duration: 1.4,
+                    ease: "expo.out",
+                    stagger: 0.12
+                });
+
+                // 2. Apertura de espacio (Smooth Expand)
+                tl.to(".loader-gif-outer", {
+                    width: "auto",
+                    duration: 1,
+                    ease: "expo.inOut"
+                }, "-=0.8");
+
+                // 3. GIF Fade In
+                tl.to(".loader-gif-inner", {
+                    opacity: 1,
+                    scale: 1,
+                    duration: 0.8,
+                    ease: "expo.out"
+                }, "-=0.6");
+
+                // 4. Pausa de lectura
+                tl.to({}, { duration: 1.2 });
+
+                // 5. Salida "Accelerated In" (Caída suave)
+                tl.to(".loader-title:first-child", {
+                    y: "115%",
+                    duration: 0.7,
+                    ease: "expo.in"
+                });
+
+                tl.to(".loader-gif-inner", {
+                    y: "115%",
+                    opacity: 0,
+                    duration: 0.7,
+                    ease: "expo.in"
+                }, "-=0.7");
+
+                tl.to(".loader-title:last-child", {
+                    y: "115%",
+                    duration: 0.7,
+                    ease: "expo.in"
+                }, "-=0.7");
+            }
+        });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@barba/core@2.9.7/dist/barba.umd.js"></script>
+    <script src="https://unpkg.com/lenis@1.1.2/dist/lenis.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
