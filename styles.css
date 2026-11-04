@@ -4114,3 +4114,69 @@ a.case-study__home__card.w-inline-block { transition: transform .2s cubic-bezier
   .case-study__home__card.forfun           { grid-area: 3 / 2 / 4 / 3 !important; }
   .case-study__home__card.petfinder        { grid-area: 2 / 3 / 4 / 4 !important; }
 }
+
+
+/* =====================================================================
+   REPRODUCTOR: TIMELINE (pegar al final de styles.css)
+   Estado default: línea de progreso abajo. Estado .is-seek (hover en desktop / tap en móvil):
+   título y artista con blur + 25%, y encima tiempos + slider.
+   ===================================================================== */
+.player { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+
+/* deja espacio abajo para la línea (la altura total del player no cambia) */
+.player__info { position: relative; align-self: stretch; justify-content: center; }
+
+/* Línea de progreso (default): ancho completo del bloque título/artista, color de los botones */
+.player__line {
+  position: absolute; left: 0; right: 0;
+  bottom: calc(max(.25em, 4px) * -1); /* mismo valor que el padding de .player */
+  height: max(.2em, 3px); border-radius: 100px; overflow: hidden; pointer-events: none;
+  transition: opacity .25s ease;
+}
+.player__line-fill {
+  width: 100%; height: 100%; border-radius: inherit; background-color: currentColor;
+  transform: translate3d(-100%, 0, 0); will-change: transform;
+}
+
+/* Estado seek: título y artista */
+.player__info .marquee { transition: filter .25s ease, opacity .25s ease; }
+.player.is-seek .player__info .marquee { filter: blur(8px); opacity: .25; }
+.player.is-seek .player__line { opacity: 0; }
+
+/* Overlay: tiempos arriba + slider abajo */
+.player__seek {
+  position: absolute; inset: 0; display: flex; flex-flow: column; justify-content: center;
+  grid-row-gap: max(.25em, 4px);
+  opacity: 0; pointer-events: none; transition: opacity .25s ease;
+}
+.player.is-seek .player__seek { opacity: 1; pointer-events: auto; }
+
+.player__times {
+  display: flex; justify-content: space-between; align-items: center;
+  color: var(--_portfolio---text--primary);
+  font-size: max(.85em, 14px); font-weight: 400; line-height: 120%; letter-spacing: -.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.player__slider {
+  position: relative; display: flex; align-items: center; width: 100%;
+  height: max(.75em, 12px); cursor: pointer; touch-action: none; outline: none;
+}
+/* zona de toque más grande que la barra */
+.player__slider::before { content: ""; position: absolute; inset: -.5em 0; }
+.player__slider:focus-visible { outline: .125em solid #9d2114; outline-offset: .25em; border-radius: 100px; }
+
+.player__track {
+  position: relative; width: 100%; height: max(.5em, 8px); border-radius: 100px; overflow: hidden;
+  background-color: rgba(153, 153, 153, .25); /* #999999 al 25% */
+}
+.player__fill {
+  position: absolute; inset: 0; border-radius: inherit;
+  background-color: var(--_portfolio---primary--500);
+  transform: translate3d(-100%, 0, 0); will-change: transform;
+}
+.player__thumb {
+  position: absolute; top: 0; left: 0; width: max(.75em, 12px); height: max(.75em, 12px);
+  border-radius: 50%; background-color: var(--_portfolio---primary--500);
+  pointer-events: none; will-change: transform;
+}
