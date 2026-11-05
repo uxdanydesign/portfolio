@@ -90,7 +90,6 @@
   /* Para agregar una canción: sube el mp3 al repo 'songs' y agrega una línea aquí.
      file = nombre exacto del archivo (con espacios, sin %20). La portada se busca sola en covers/<nombre-en-minusculas-con-guiones>.webp */
   const playlist = [
-    { name: 'Project X Summer Take Over Mix 2026🔥', artists: ['DJ HunnedGrand'], file: 'Project X Summer Take Over Mix 2026🔥.mp3' },
     { name: 'Pray to God', artists: ['Calvin Harris'], file: 'Calvin Harris - Pray to God (feat. HAIM).mp3' },
     { name: 'Ma stasera', artists: ['Marco Mengoni'], file: 'Marco Mengoni - Ma stasera.mp3' },
     { name: 'la pluie', artists: ['Louane'], file: 'Louane - la pluie.mp3' },
@@ -99,6 +98,8 @@
   const slug = (t) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   const coverOf = (s) => s.cover || 'covers/' + slug(s.name) + '.webp';
   const urlOf = (s) => s.url || SONGS + encodeURIComponent(s.file);
+  // La letra se busca sola en lyrics/<nombre>.json (o usa s.lyrics si la defines en la canción)
+  const lyricsUrlOf = (s) => s.lyrics || 'lyrics/' + slug(s.name) + '.json';
   const RESPECT_REDUCED_MOTION = false; // true = el marquee no se anima si el sistema pide menos movimiento
   const MQ = { delay: 800, gap: 2.5, pps: 2.5 }; // gap y velocidad en em (40px y 40px/s a 16px)
 
@@ -200,9 +201,141 @@
     const st = { hover: false, tap: false, focus: false, drag: false };
     let W = 0, D = 0, raf = 0, shown = false, lastSec = -1, lastDur = -1, seekAt = 0, rectL = 0, rectW = 1, dragP = 0;
 
+    /* ---------- Letras ----------
+       Cada canción trae su archivo lyrics/<nombre>.json ({ "lines": [{ "t": ms, "x": "texto" }] }).
+       Se descarga solo el de la canción actual (en tiempo libre del navegador) y se precarga la siguiente.
+       La letra solo trabaja mientras el player está expandido. */
+    const LYRIC_LEAD_MS = 250;      // adelanta la activación de cada línea
+    const FOLLOW_ANCHOR = 0.3;      // la línea activa se mantiene a ~30% del área visible
+    const RESUME_FOLLOW_MS = 3000;  // tras un scroll manual, vuelve a la línea activa
+    const MUSIC_ONLY = /^[\s♪♫♬♩·.\-–—]*$/;
+    const NOTE_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>';
+    const idle = window.requestIdleCallback ? (f) => requestIdleCallback(f, { timeout: 3000 }) : (f) => setTimeout(f, 1200);
+
+    player.insertAdjacentHTML('afterbegin',
+      '<div class="player__lyrics" data-lenis-prevent data-status="loading" aria-label="Lyrics">' +
+        '<div class="player__lyrics-msg"><span></span><button class="player__lyrics-retry" type="button" data-lyrics="retry">Reintentar</button></div>' +
+        '<div class="player__lyrics-list"></div>' +
+        '<div class="player__lyrics-author"></div>' +
+      '</div>');
+    const lyricsEl = $('.player__lyrics', player), listEl = $('.player__lyrics-list', player);
+    const msgEl = $('.player__lyrics-msg span', player), authorEl = $('.player__lyrics-author', player);
+
+    const lyricCache = new Map();   // url -> Promise<[{t, x}]>
+    let L = [], els = [], active = -1, follow = true, resumeT = 0, lstatus = 'loading';
+    let loadedFor = -1, seenIdx = -1, loadToken = 0, edgeRaf = 0;
+    const LMSG = { loading: 'Cargando letra...', error: 'No se pudo cargar la letra', instrumental: 'Instrumental' };
+
+    const fetchLyrics = (url) => {
+      if (!lyricCache.has(url)) {
+        lyricCache.set(url, fetch(url)
+          .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then((j) => (j.lines || []).map((l) => ({ t: +l.t || 0, x: l.x || '' })).sort((a, b) => a.t - b.t))
+          .catch((e) => { lyricCache.delete(url); throw e; }));
+      }
+      return lyricCache.get(url);
+    };
+    const setLStatus = (s) => { lstatus = s; lyricsEl.dataset.status = s; msgEl.textContent = LMSG[s] || ''; };
+
+    const findActive = (posMs) => { // última línea con t <= posMs (búsqueda binaria)
+      let lo = 0, hi = L.length - 1, ans = -1;
+      while (lo <= hi) { const mid = (lo + hi) >> 1; if (L[mid].t <= posMs) { ans = mid; lo = mid + 1; } else hi = mid - 1; }
+      return ans;
+    };
+    const setActive = (i, instant) => {
+      if (i === active) return;
+      if (instant) lyricsEl.classList.add('is-instant'); // sin animación al abrir
+      if (els[active]) els[active].classList.remove('is-active');
+      active = i;
+      if (els[i]) els[i].classList.add('is-active');
+      if (instant) requestAnimationFrame(() => requestAnimationFrame(() => lyricsEl.classList.remove('is-instant')));
+    };
+    const scrollToActive = (animated) => {
+      const el = els[active];
+      if (!el) { if (!animated) lyricsEl.scrollTop = 0; return; }
+      const top = Math.max(0, el.offsetTop - lyricsEl.clientHeight * FOLLOW_ANCHOR + el.offsetHeight / 2);
+      lyricsEl.scrollTo({ top, behavior: animated ? 'smooth' : 'auto' });
+    };
+    // fade superior / inferior solo si hay más contenido en ese lado
+    const edges = () => {
+      edgeRaf = 0;
+      lyricsEl.classList.toggle('fade-top', lyricsEl.scrollTop > 2);
+      lyricsEl.classList.toggle('fade-bottom', lyricsEl.scrollTop + lyricsEl.clientHeight < lyricsEl.scrollHeight - 2);
+    };
+    lyricsEl.addEventListener('scroll', () => { if (!edgeRaf) edgeRaf = requestAnimationFrame(edges); }, { passive: true });
+
+    const buildLyrics = (lines) => {
+      L = lines;
+      if (!L.length) { setLStatus('instrumental'); return; }
+      const frag = document.createDocumentFragment();
+      els = L.map((l, i) => {
+        const row = document.createElement('div'), inner = document.createElement('div');
+        row.className = 'player__lyric'; row.dataset.i = i; row.setAttribute('role', 'button');
+        inner.className = 'player__lyric-inner';
+        if (MUSIC_ONLY.test(l.x)) inner.innerHTML = NOTE_SVG; else inner.textContent = l.x;
+        row.appendChild(inner); frag.appendChild(row);
+        return row;
+      });
+      listEl.appendChild(frag);
+      setLStatus('ready');
+      if (shown) enterLyrics();
+      else edges();
+    };
+    const setLyricsSong = () => {
+      loadedFor = idx;
+      const song = playlist[idx], mine = ++loadToken;
+      authorEl.textContent = 'Autor: ' + song.artists.join(', ');
+      L = []; els = []; active = -1; listEl.replaceChildren(); lyricsEl.scrollTop = 0;
+      setLStatus('loading');
+      fetchLyrics(lyricsUrlOf(song)).then(
+        (lines) => { if (mine === loadToken) buildLyrics(lines); },
+        () => { if (mine === loadToken) setLStatus('error'); }
+      );
+      // precarga la siguiente canción en tiempo libre
+      idle(() => fetchLyrics(lyricsUrlOf(playlist[(idx + 1) % playlist.length])).catch(() => {}));
+    };
+    const ensureLyricsSong = () => { if (loadedFor !== idx) setLyricsSong(); };
+
+    const enterLyrics = () => {
+      ensureLyricsSong();
+      follow = true; clearTimeout(resumeT);
+      if (lstatus === 'ready') {
+        setActive(findActive(audio.currentTime * 1000 + LYRIC_LEAD_MS), true);
+        scrollToActive(false);
+      }
+      edges();
+    };
+    const leaveLyrics = () => { clearTimeout(resumeT); follow = true; };
+    const updateLyrics = (t) => {
+      if (lstatus !== 'ready') return;
+      const i = findActive(t * 1000 + LYRIC_LEAD_MS);
+      if (i === active) return;
+      setActive(i);
+      if (follow && i >= 0) scrollToActive(true);
+    };
+
+    // Scroll manual: pausa el seguimiento y a los 3 s regresa a la línea activa
+    const userScroll = () => {
+      follow = false; clearTimeout(resumeT);
+      resumeT = setTimeout(() => { follow = true; scrollToActive(true); }, RESUME_FOLLOW_MS);
+    };
+    ['wheel', 'touchstart', 'touchmove', 'touchend'].forEach((ev) => lyricsEl.addEventListener(ev, userScroll, { passive: true }));
+
+    // Tap / clic en una línea: mueve la canción ahí
+    lyricsEl.addEventListener('click', (e) => {
+      if (e.target.closest('[data-lyrics="retry"]')) { setLyricsSong(); return; }
+      const row = e.target.closest('.player__lyric');
+      const l = row && L[+row.dataset.i];
+      if (!l) return;
+      audio.currentTime = l.t / 1000;
+      follow = true; clearTimeout(resumeT);
+      setActive(+row.dataset.i); scrollToActive(true);
+    });
+
     // Pinta línea + slider. El slider solo se actualiza cuando está visible.
     const draw = () => {
       const d = dur(), t = st.drag ? dragP * d : audio.currentTime;
+      if (idx !== seenIdx) { seenIdx = idx; idle(ensureLyricsSong); } // canción nueva: descarga su letra en tiempo libre
       const p = d ? Math.min(1, Math.max(0, t / d)) : 0;
       lineFill.style.transform = 'translate3d(' + (p - 1) * 100 + '%,0,0)';
       if (shown) {
@@ -213,13 +346,14 @@
       const sec = Math.floor(t);
       if (sec !== lastSec) { lastSec = sec; curEl.textContent = fmtT(t); slider.setAttribute('aria-valuenow', sec); }
       if (d !== lastDur) { lastDur = d; durEl.textContent = fmtT(d); slider.setAttribute('aria-valuemax', Math.floor(d)); }
+      if (shown) updateLyrics(t);
     };
     const measure = () => { W = slider.clientWidth; D = thumb.offsetWidth; draw(); };
     const sync = () => {
       const v = st.hover || st.tap || st.focus || st.drag;
       if (v === shown) return;
       shown = v; player.classList.toggle('is-seek', v);
-      if (v) { measure(); }
+      if (v) { measure(); enterLyrics(); } else leaveLyrics();
     };
     if ('ResizeObserver' in window) { const ro = new ResizeObserver(measure); ro.observe(slider); ro.observe(thumb); }
     measure();
