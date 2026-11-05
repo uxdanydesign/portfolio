@@ -93,13 +93,12 @@
     { name: 'Pray to God', artists: ['Calvin Harris'], file: 'Calvin Harris - Pray to God (feat. HAIM).mp3' },
     { name: 'Ma stasera', artists: ['Marco Mengoni'], file: 'Marco Mengoni - Ma stasera.mp3' },
     { name: 'la pluie', artists: ['Louane'], file: 'Louane - la pluie.mp3' },
+    { name: 'Toda Gloria', artists: ['Niko Eme'], file: 'Niko-Eme-feat-Tommy-Royale-Toda-Gloria-(CeeNaija.com).mp3' },
     { name: 'Wenn ich will', artists: ['CÉLINE'], file: 'CÉLINE - Wenn ich will.mp3' },
   ];
   const slug = (t) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   const coverOf = (s) => s.cover || 'covers/' + slug(s.name) + '.webp';
   const urlOf = (s) => s.url || SONGS + encodeURIComponent(s.file);
-  // La letra se busca sola en lyrics/<nombre>.json (o usa s.lyrics si la defines en la canción)
-  const lyricsUrlOf = (s) => s.lyrics || 'lyrics/' + slug(s.name) + '.json';
   const RESPECT_REDUCED_MOTION = false; // true = el marquee no se anima si el sistema pide menos movimiento
   const MQ = { delay: 800, gap: 2.5, pps: 2.5 }; // gap y velocidad en em (40px y 40px/s a 16px)
 
@@ -201,11 +200,9 @@
     const st = { hover: false, tap: false, focus: false, drag: false };
     let W = 0, D = 0, raf = 0, shown = false, lastSec = -1, lastDur = -1, seekAt = 0, rectL = 0, rectW = 1, dragP = 0;
 
-    
     // Pinta línea + slider. El slider solo se actualiza cuando está visible.
     const draw = () => {
       const d = dur(), t = st.drag ? dragP * d : audio.currentTime;
-      if (idx !== seenIdx) { seenIdx = idx; idle(ensureLyricsSong); } // canción nueva: descarga su letra en tiempo libre
       const p = d ? Math.min(1, Math.max(0, t / d)) : 0;
       lineFill.style.transform = 'translate3d(' + (p - 1) * 100 + '%,0,0)';
       if (shown) {
@@ -216,14 +213,13 @@
       const sec = Math.floor(t);
       if (sec !== lastSec) { lastSec = sec; curEl.textContent = fmtT(t); slider.setAttribute('aria-valuenow', sec); }
       if (d !== lastDur) { lastDur = d; durEl.textContent = fmtT(d); slider.setAttribute('aria-valuemax', Math.floor(d)); }
-      if (shown) updateLyrics(t);
     };
     const measure = () => { W = slider.clientWidth; D = thumb.offsetWidth; draw(); };
     const sync = () => {
       const v = st.hover || st.tap || st.focus || st.drag;
       if (v === shown) return;
       shown = v; player.classList.toggle('is-seek', v);
-      if (v) { measure(); enterLyrics(); } else leaveLyrics();
+      if (v) measure();
     };
     if ('ResizeObserver' in window) { const ro = new ResizeObserver(measure); ro.observe(slider); ro.observe(thumb); }
     measure();
