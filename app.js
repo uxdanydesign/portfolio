@@ -20,11 +20,11 @@
   }
   const toTop = () => { window.scrollTo(0, 0); lenis && lenis.scrollTo(0, { immediate: true, force: true }); };
 
-  /* ---------- 3. Reloj en vivo (hora de CDMX, sin AM/PM, igual que el texto original "1:38:32") ---------- */
-  const fmt = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'America/Mexico_City', hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true,
+  /* ---------- 3. Reloj en vivo (hora de CDMX, formato 24 h: medianoche = 00:09:12, mediodía = 12:09:12) ---------- */
+  const fmt = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'America/Mexico_City', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23',
   });
-  const timeStr = () => fmt.format(new Date()).replace(/\s?[AP]M$/i, '');
+  const timeStr = () => fmt.format(new Date());
   // Busca [data-clock]. Si la página no lo trae, se lo pone al segundo texto del primer bloque del footer
   // (la hora), así funciona aunque entres directo a un case study.
   const clockEls = () => {
