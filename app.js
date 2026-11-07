@@ -93,7 +93,7 @@
     { name: 'Pray to God', artists: ['Calvin Harris'], file: 'Calvin Harris - Pray to God (feat. HAIM).mp3' },
     { name: 'Ma stasera', artists: ['Marco Mengoni'], file: 'Marco Mengoni - Ma stasera.mp3' },
     { name: 'la pluie', artists: ['Louane'], file: 'Louane - la pluie.mp3' },
-    { name: '#BrooklynBloodPop!', artists: ['Syko'], file: 'Syko - #BrooklynBloodPop!.mp3' },
+    { name: 'WORTH NOTHING!', artists: ['Twisted'], file: 'Twisted - WORTH NOTHING (Fast & Furious_ Drift Tape_Phonk Vol 1).mp3' },
     { name: 'Wenn ich will', artists: ['CÉLINE'], file: 'CÉLINE - Wenn ich will.mp3' },
   ];
   const slug = (t) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
