@@ -4333,7 +4333,7 @@ html::after {  /* derecha: la misma palmera en espejo, un poco más chica */
 /* ---------- Reproductor ---------- */
 .player {
   color: var(--g6-accent);
-  background: linear-gradient(91.12deg, rgba(30, 23, 40, .9) 0%, rgba(53, 36, 47, .9) 100%);
+  background: rgba(51, 34, 46, 1);
   border: 1px solid var(--g6-stroke);
 }
 .player__veil { background-color: rgba(39, 30, 52, .5); }
