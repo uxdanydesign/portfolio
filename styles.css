@@ -4250,15 +4250,15 @@ html::after {
   background: url("images/gta6-palm.svg") no-repeat center bottom / contain;
 }
 html::before { /* izquierda */
-  left: -4vw;
-  height: 100vh;
+  left: -16vw;
+  height: 90vh;
 }
 html::after {  /* derecha: la misma palmera en espejo, un poco más chica */
-  right: -4vw;
-  height: 88vh;
+  right: -16vw;
+  height: 80vh;
   transform: scaleX(-1);
 }
-@media screen and (max-width: 991px) {
+@media screen and (max-width: 2400px) {
   html::before,
   html::after { display: none; }
 }
