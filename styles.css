@@ -4186,12 +4186,12 @@ a.case-study__home__card.w-inline-block { transition: transform .2s cubic-bezier
 
 /* ---------- Tokens del tema (ajusta aquí los colores) ---------- */
 :root {
-  --g6-bg-top: #1E1728;
-  --g6-bg-bottom: #35242F;
-  --g6-pink: #F5CEE8;        /* texto principal */
-  --g6-pink-dim: #A192B7;    /* texto secundario (artista, hover) */
+  --g6-bg-top: #0C0D1B;
+  --g6-bg-bottom: #1E1728;
+  --g6-pink: #E1D9FB;        /* texto principal */
+  --g6-pink-dim: #807B92;    /* texto secundario (artista, hover) */
   --g6-muted: #866A7C;       /* labels, footer */
-  --g6-accent: #ED9DD2;      /* player, progreso, iconos */
+  --g6-accent: #E1D9FB;      /* player, progreso, iconos */
   --g6-card: rgba(10, 10, 10, .08);
   --g6-stroke: rgba(178, 165, 255, .12);
   --g6-chip: rgba(58, 45, 78, .24);
