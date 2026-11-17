@@ -4333,10 +4333,10 @@ html::after {  /* derecha: la misma palmera en espejo, un poco más chica */
 /* ---------- Reproductor ---------- */
 .player {
   color: var(--g6-accent);
-  background: rgba(51, 34, 46, 1);
+  background: rgba(21, 22, 40, 1);
   border: 1px solid var(--g6-stroke);
 }
-.player__veil { background-color: rgba(39, 30, 52, .5); }
+.player__veil { background-color: rgba(21, 22, 40, .5); }
 .marquee--title { color: var(--g6-pink); }
 .marquee--sub { color: var(--g6-pink-dim); }
 .player button:focus-visible,
