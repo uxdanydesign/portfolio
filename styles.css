@@ -4367,3 +4367,55 @@ html::after {  /* derecha: la misma palmera en espejo, un poco más chica */
 /* =====================================================================
    GTA6 THEME END
    ===================================================================== */
+
+
+
+
+/* ---------- 1. Fondo: sin background-attachment: fixed ----------
+   "fixed" en el html obliga al navegador a repintar el fondo en cada frame
+   de scroll. Un pseudo-elemento fixed con el mismo gradiente se queda en su
+   propia capa y no cuesta nada. (-2 para quedar debajo de las palmeras, que usan -1) */
+html { background: var(--g6-bg-top); }
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background: linear-gradient(180deg, var(--g6-bg-top) 0%, var(--g6-bg-bottom) 100%);
+}
+
+/* ---------- 2. Tags de las cards: sin backdrop-filter ----------
+   Eran 11 backdrop-filters anidados dentro de cards con overflow:hidden,
+   border-radius y transform en hover. Es la combinación que más artefactos
+   da. Con fondo más opaco el resultado visual es casi idéntico y el costo es 0. */
+.case-study__home__tag {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background-color: rgba(30, 23, 40, .72);
+}
+
+/* ---------- 3. Reproductor ---------- */
+.player {
+  --player-blur: 10px;               /* en px: no escala con em y es más barato que 16px */
+  /* centrado sin transform (transform + backdrop-filter = bordes raros) */
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  transform: none;
+  /* más opaco: se lee bien aunque el blur no se aplique */
+  background: linear-gradient(91.12deg, rgba(30, 23, 40, .62) 0%, rgba(53, 36, 47, .62) 100%);
+  -webkit-backdrop-filter: blur(var(--player-blur));
+  backdrop-filter: blur(var(--player-blur));
+}
+
+/* ---------- 4. Nav: mix-blend-mode solo en desktop ----------
+   Un blend en un elemento sticky obliga a componer TODO .content en una
+   superficie aparte en cada frame de scroll. Es lo más caro de la página en celular.
+   Si prefieres mantenerlo en todos lados, borra este bloque y deja el nav como estaba. */
+.nav { mix-blend-mode: normal; }
+@media (hover: hover) and (min-width: 992px) {
+  .nav { mix-blend-mode: difference; }
+}
+
+/* BLUR FIX END */
