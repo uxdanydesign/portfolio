@@ -92,6 +92,7 @@
   const playlist = [
     { name: 'Blood In Your Eyes', artists: ['Tove Lo'], file: 'Tove Lo - Blood In Your Eyes (from GTAVI_ The Album).mp3' },
     { name: 'Suzuki', artists: ['Fuerza Regida'], file: 'Fuerza Regida - Suzuki (from GTAVI_ The Album).mp3' },
+    { name: 'Flower In A Hurricane', artists: ['Justice'], file: 'justice-flower-in-a-hurricane.mp3' },
     { name: 'Se Me Nota', artists: ['Chimbala'], file: 'Chimbala - Se Me Nota (Agarrame) (Prod by B-One).mp3' },
   ];
   const slug = (t) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
